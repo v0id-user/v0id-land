@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getSpacerToken } from "@/lib/token";
-import { updateBlogPostDraftUnpublished, getPost } from "@/lib/blog";
+import { updateBlogPostDraftUnpublished, getPost, initBlogPostDraft } from "@/lib/blog";
 import { PostStatus } from "@prisma/client";
 
 export async function POST(request: NextRequest) {
@@ -12,12 +12,18 @@ export async function POST(request: NextRequest) {
     try {
         const data = await request.json();
         
-        // Normalize categories to lowercase
+        // Normalize categories to lowercase if present
         if (data.categories) {
             data.categories = [...new Set(data.categories.map((cat: string) => cat.toLowerCase()))];
         }
 
-        // Get existing post
+        // If no ID is provided, create a new draft
+        if (!data.id) {
+            const newPost = await initBlogPostDraft(data);
+            return NextResponse.json(newPost);
+        }
+
+        // Otherwise, update existing post
         const existingPost = await getPost(data.id);
         if (!existingPost) {
             return NextResponse.json({ error: 'Post not found' }, { status: 404 });
@@ -32,7 +38,7 @@ export async function POST(request: NextRequest) {
         
         return NextResponse.json(updatedPost);
     } catch (error) {
-        console.error('Error updating draft:', error);
+        console.error('Error handling draft:', error);
         return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
     }
 }

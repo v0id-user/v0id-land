@@ -278,8 +278,9 @@ export default function BlogEditorForm({ spacerData, id }: BlogEditorFormProps) 
 
     // Cleanup on unmount
     useEffect(() => {
+        // Copy ref value to variable inside effect
+        const tracker = activityTracker.current
         return () => {
-            const tracker = activityTracker.current
             if (tracker.saveTimeout) {
                 clearTimeout(tracker.saveTimeout)
             }

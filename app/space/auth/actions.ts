@@ -2,13 +2,11 @@
 
 import { z } from 'zod';
 import { PrismaClient } from '@prisma/client';
-import * as openpgp from 'openpgp';
-import fs from 'fs/promises';
 import bcrypt from 'bcrypt';
 import { AuthErrorCode, type AuthResponse } from '@/errors/auth';
 import { createSpacerToken } from '@/lib/token';
 import { cookies } from 'next/headers';
-import { getPublicKey, verifySignature } from '@/lib/gpg';
+import { verifySignature } from '@/lib/gpg';
 
 // Validation schemas
 const loginSchema = z.object({

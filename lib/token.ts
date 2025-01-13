@@ -33,6 +33,7 @@ export const getSpacerToken = async () => {
 
         return token;
     } catch (error) {
+        console.error("Error verifying token:", error);
         return null;
     }
 }

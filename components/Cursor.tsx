@@ -142,7 +142,7 @@ export default function Cursor() {
             document.removeEventListener("mousedown", handleMouseDown);
             document.removeEventListener("mouseup", handleMouseUp);
         };
-    }, [isVisible]);
+    }, [isVisible, cursorX, cursorY]);
 
     // Completely hide cursor for mobile screens
     if (!isVisible || window.matchMedia("(pointer: coarse)").matches) return null;

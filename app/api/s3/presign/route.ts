@@ -82,9 +82,9 @@ export async function POST(request: Request) {
                 publicUrl,
                 key
             });
-        } catch (error: any) {
+        } catch (error) {
             // File doesn't exist, generate presigned URL for upload
-            if (error.name === 'NotFound') {
+            if (error instanceof Error && 'name' in error && error.name === 'NotFound') {
                 const command = new PutObjectCommand({
                     Bucket: process.env.AWS_BUCKET_NAME,
                     Key: key,

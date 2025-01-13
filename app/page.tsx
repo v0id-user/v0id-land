@@ -4,7 +4,7 @@ import Link from "next/link";
 import WorkBar from "@/components/WorkBar";
 import { motion } from "motion/react";
 import { useEffect, useState } from "react";
-
+import Image from "next/image";
 export default function Home() {
   const [isFirstVisit, setIsFirstVisit] = useState(true);
   const [isLoaded, setIsLoaded] = useState(false);
@@ -89,7 +89,7 @@ export default function Home() {
         >
           جميع الحقوق محفوظة © {new Date().getFullYear()} #V0ID
         </motion.footer>
-        <img src="/logo.svg" alt="logo" className="w-7 h-7" />
+        <Image src="/logo.svg" alt="logo" width={28} height={28} />
       </div>
 
     </main>

@@ -1,5 +1,6 @@
 'use client';
 
+import { PostStatus } from '@prisma/client';
 import { useRouter } from 'next/navigation';
 
 interface CreatePostButtonProps {
@@ -24,6 +25,7 @@ export default function CreatePostButton({ authorId }: CreatePostButtonProps) {
                     content: '',
                     signedWithGPG: false,
                     includeWorkbar: false,
+                    status: PostStatus.DRAFT,
                 }),
             });
 

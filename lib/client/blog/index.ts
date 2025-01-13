@@ -1,9 +1,8 @@
 /*
 * Abstract for blog API calls
 */
-import { apiClient } from '@/lib/client'
 import { FormState } from '@/interfaces/state/blog/form'
-import { BlogPostRequest, BlogPostResponse } from '@/interfaces/blog'
+import { BlogPostResponse } from '@/interfaces/blog'
 
 export async function updateDraft(state: FormState): Promise<BlogPostResponse | null> {
     try {

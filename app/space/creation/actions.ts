@@ -1,7 +1,7 @@
 'use server'
 
 import { PostStatus, PrismaClient } from "@prisma/client"
-import { SpaceErrorCode, type SpaceResponse } from "@/errors/posts"
+import { SpaceErrorCode } from "@/errors/posts"
 import { signText } from "@/lib/gpg"
 import slugify from "slugify"
 

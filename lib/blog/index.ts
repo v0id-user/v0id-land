@@ -1,6 +1,6 @@
 import 'server-only'
-import { BlogPostRequest, BlogPostsResponse } from "@/interfaces/blog"
-import { Post, PostStatus, PrismaClient } from "@prisma/client"
+import { BlogPostRequest, BlogPostResponse } from "@/interfaces/blog"
+import { Post, PrismaClient } from "@prisma/client"
 import { createClient } from "@redis/client"
 
 const prisma = new PrismaClient()
@@ -26,16 +26,22 @@ export async function getPost(id: string): Promise<Post | null> {
     return post
 }
 
-export async function getBlogPosts(authorId: string): Promise<BlogPostsResponse[]> {
+export async function getBlogPosts(authorId: string): Promise<BlogPostResponse[]> {
     const posts = await prisma.post.findMany({
-        where: { authorId: authorId }
+        where: { authorId: authorId },
+        include: {
+            categories: true
+        }
     })
 
-    const blogPosts: BlogPostsResponse[] = posts.map(post => ({
+    const blogPosts: BlogPostResponse[] = posts.map(post => ({
         title: post.title ?? "",
         slug: post.slug ?? "",
         id: post.id,
-        author: post.authorId
+        author: post.authorId,
+        content: post.content ?? "",
+        status: post.status,
+        categories: post.categories.map(cat => cat.name)
     }))
 
     console.log(blogPosts)

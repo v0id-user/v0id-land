@@ -20,12 +20,4 @@ export interface BlogPostResponse {
     status: PostStatus
     categories: string[]
     author: string
-}   
-
-
-export interface BlogPostsResponse {
-    title: string
-    slug: string
-    id: string
-    author: string
 }
