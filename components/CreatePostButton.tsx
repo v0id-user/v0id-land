@@ -2,6 +2,7 @@
 
 import { PostStatus } from '@prisma/client';
 import { useRouter } from 'next/navigation';
+import { BlogPostRequest } from '@/interfaces/blog';
 
 interface CreatePostButtonProps {
     authorId: string;
@@ -12,21 +13,23 @@ export default function CreatePostButton({ authorId }: CreatePostButtonProps) {
 
     const handleClick = async () => {
         try {
+            const postData: BlogPostRequest = {
+                author: authorId,
+                title: '',
+                content: '',
+                slug: '',
+                categories: [],
+                signedWithGPG: false,
+                includeWorkbar: false,
+                status: PostStatus.DRAFT
+            };
+
             const response = await fetch('/api/blog/draft', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify({
-                    author: authorId,
-                    slug: '',
-                    title: '',
-                    categories: [],
-                    content: '',
-                    signedWithGPG: false,
-                    includeWorkbar: false,
-                    status: PostStatus.DRAFT,
-                }),
+                body: JSON.stringify(postData),
             });
 
             if (!response.ok) {

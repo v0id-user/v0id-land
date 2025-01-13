@@ -1,6 +1,6 @@
 import 'server-only'
 import { BlogPostRequest, BlogPostResponse } from "@/interfaces/blog"
-import { Post, PrismaClient } from "@prisma/client"
+import { Post, PrismaClient, PostStatus } from "@prisma/client"
 import { createClient } from "@redis/client"
 
 const prisma = new PrismaClient()
@@ -74,24 +74,20 @@ export async function getPostBySlug(slug: string): Promise<Post | null> {
 
 export async function initBlogPostDraft(data: BlogPostRequest): Promise<Post> {
     const post = await prisma.post.create({
-        data:
-        {
-            author: {
-                connect: {
-                    id: data.author
-                }
-            },
-            title: data.title,
-            content: data.content,
-            signedWithGPG: data.signedWithGPG,
-            workbar: data.includeWorkbar,
-
-            // The categories and slug are not set yet, they are set on publish or full update to a published post
-            categories: {},
-            slug: ""
+        data: {
+            authorId: data.author,
+            title: data.title || '',
+            content: data.content || '',
+            signedWithGPG: data.signedWithGPG || false,
+            workbar: data.includeWorkbar || false,
+            status: data.status || PostStatus.DRAFT,
+            slug: data.slug || '',
+            categories: {
+                connect: []
+            }
         }
-    })
-    return post
+    });
+    return post;
 }
 
 export async function updateBlogPostDraftUnpublished(data: DraftUpdateData, post: Post): Promise<Post> {

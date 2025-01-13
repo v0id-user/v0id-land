@@ -7,19 +7,12 @@ import Link from '@tiptap/extension-link'
 import { useCallback, useRef, useEffect, useState } from 'react'
 import { Bold, Italic, Heading2, List, ListOrdered, Image as ImageIcon, Link as LinkIcon, Code, Quote } from 'lucide-react'
 import toast from 'react-hot-toast'
-import { FormState } from '@/interfaces/state/blog/form'
+import { useBlogFormStore } from '@/interfaces/state/blog/form'
 
-interface EditorProps {
-    onChange?: (html: string) => void;
-    currentFormState?: FormState;
-    setFormState?: React.Dispatch<React.SetStateAction<FormState>>;
-    handleSavingDrafts?: () => void;
-}
-
-export default function BlogEditor({ onChange, currentFormState, handleSavingDrafts, setFormState }: EditorProps) {
+export default function BlogEditor() {
     const fileInputRef = useRef<HTMLInputElement>(null)
     const [isMounted, setIsMounted] = useState(false)
-    const lastSavedContentRef = useRef<string>(currentFormState?.content ?? '');
+    const store = useBlogFormStore()
 
     const editor = useEditor({
         extensions: [
@@ -58,7 +51,7 @@ export default function BlogEditor({ onChange, currentFormState, handleSavingDra
                 },
             }),
         ],
-        content: currentFormState?.content ?? '',
+        content: store.content,
         editorProps: {
             attributes: {
                 class: 'prose prose-lg max-w-none focus:outline-none min-h-[70vh] px-0 py-8',
@@ -89,13 +82,8 @@ export default function BlogEditor({ onChange, currentFormState, handleSavingDra
                 // Handle text paste
                 setTimeout(() => {
                     const content = editor?.getHTML();
-                    if (content && setFormState) {
-                        setFormState(prev => ({ ...prev, content }));
-                        
-                        // Trigger save after paste
-                        if (content !== lastSavedContentRef.current) {
-                            handleSavingDrafts?.();
-                        }
+                    if (content) {
+                        store.setContent(content)
                     }
                 }, 10);
 
@@ -103,7 +91,7 @@ export default function BlogEditor({ onChange, currentFormState, handleSavingDra
             },
         },
         onUpdate: ({ editor }) => {
-            onChange?.(editor.getHTML())
+            store.setContent(editor.getHTML())
         },
     }, []) // Add empty dependency array to avoid re-renders
 
@@ -112,39 +100,10 @@ export default function BlogEditor({ onChange, currentFormState, handleSavingDra
     }, [])
 
     useEffect(() => {
-        if (editor && currentFormState?.content !== editor.getHTML()) {
-            editor.commands.setContent(currentFormState?.content ?? '')
+        if (editor && store.content !== editor.getHTML()) {
+            editor.commands.setContent(store.content)
         }
-    }, [editor, currentFormState])
-
-    useEffect(() => {
-        if (editor) {
-            let timeout: ReturnType<typeof setTimeout>;
-
-            editor.on('update', ({ editor, transaction }) => {
-                // Only proceed if it's a user input or full content update
-                if (!transaction.docChanged) {
-                    return;
-                }
-
-                // Clear any pending timeout
-                if (timeout) {
-                    clearTimeout(timeout);
-                }
-
-                // Set a new timeout to update after 500ms of no changes
-                timeout = setTimeout(() => {
-                    const content = editor.getHTML();
-                    onChange?.(content);
-                }, 500);
-            });
-
-            // Cleanup
-            return () => {
-                if (timeout) clearTimeout(timeout);
-            };
-        }
-    }, [editor, onChange]);
+    }, [editor, store.content])
 
     const handleImageUpload = async (file: File) => {
         let lastImagePos: number | null = null;
@@ -369,7 +328,6 @@ export default function BlogEditor({ onChange, currentFormState, handleSavingDra
                 name="content" 
                 value={editor.getHTML()}
             />
-            
 
             {/* Custom styles using AI */}
             <style jsx global>{`
