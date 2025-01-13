@@ -1,14 +1,7 @@
-import fs from 'fs/promises';
+import { getPublicKey } from '@/lib/gpg';   
 
 export default async function GPG() {
-    if (!process.env.GPG_PUBLIC_KEY_PATH) {
-        throw new Error("GPG_PUBLIC_KEY_PATH environment variable is not set");
-    }
-
-    const public_key = await fs.readFile(process.env.GPG_PUBLIC_KEY_PATH, "utf-8");
-    const stats = await fs.stat(process.env.GPG_PUBLIC_KEY_PATH);
-
-    const lastModified = stats.mtime.toLocaleDateString();
+    const {public_key, lastModified} = await getPublicKey()
 
     return (
         <>

@@ -32,7 +32,7 @@ export default function WorkBar() {
                     }}
                 />
                 <div className="flex items-center justify-between h-full bg-[#FFFCF6] rounded-full px-4">
-                    <button 
+                    <button
                         className="w-[70px] xs:w-[80px] sm:w-[90px] md:w-[100px] h-[35px] bg-gradient-to-b from-[#FFFCF6] to-[#D7CCB8] rounded-full shadow-sm 
                                 flex items-center justify-center hover:shadow-md transition-shadow duration-300 border border-[#E8E2D7] border-opacity-70"
                         role="button"
@@ -49,6 +49,11 @@ export default function WorkBar() {
                     </div>
                 </div>
             </div>
+
+            <pre className="hidden">
+                #V0ID
+                x.com/v0id_user
+            </pre>
         </>
     );
 }

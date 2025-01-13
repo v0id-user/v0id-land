@@ -4,12 +4,18 @@ export enum SpaceErrorCode {
     INVALID_CONTENT = 'INVALID_CONTENT',
     INVALID_CATEGORIES = 'INVALID_CATEGORIES',
     INVALID_SLUG = 'INVALID_SLUG',
+    INVALID_ID = 'INVALID_ID',
     
+
+    // User error
+    POST_ID_REQUIRED = 'POST_ID_REQUIRED',  
+
     // Post Operation Errors
     POST_NOT_FOUND = 'POST_NOT_FOUND',
     POST_CREATION_FAILED = 'POST_CREATION_FAILED',
     POST_UPDATE_FAILED = 'POST_UPDATE_FAILED',
     POST_DELETE_FAILED = 'POST_DELETE_FAILED',
+    POST_NOT_DRAFT = 'POST_NOT_DRAFT',
     
     // Category Related Errors
     CATEGORY_CREATION_FAILED = 'CATEGORY_CREATION_FAILED',
@@ -41,10 +47,13 @@ export const errorMessages = {
         [SpaceErrorCode.INVALID_CONTENT]: 'المحتوى غير صالح',
         [SpaceErrorCode.INVALID_CATEGORIES]: 'التصنيفات غير صالحة',
         [SpaceErrorCode.INVALID_SLUG]: 'الرابط المختصر غير صالح',
+        [SpaceErrorCode.INVALID_ID]: 'المنشور غير موجود',
+        [SpaceErrorCode.POST_ID_REQUIRED]: 'يجب أن يكون المنشور موجود في المساحة',
         [SpaceErrorCode.POST_NOT_FOUND]: 'المنشور غير موجود',
         [SpaceErrorCode.POST_CREATION_FAILED]: 'فشل إنشاء المنشور',
         [SpaceErrorCode.POST_UPDATE_FAILED]: 'فشل تحديث المنشور',
         [SpaceErrorCode.POST_DELETE_FAILED]: 'فشل حذف المنشور',
+        [SpaceErrorCode.POST_NOT_DRAFT]: 'المنشور غير مسودة',
         [SpaceErrorCode.CATEGORY_CREATION_FAILED]: 'فشل إنشاء التصنيف',
         [SpaceErrorCode.CATEGORY_NOT_FOUND]: 'التصنيف غير موجود',
         [SpaceErrorCode.GPG_SIGNING_FAILED]: 'فشل التوقيع باستخدام GPG',

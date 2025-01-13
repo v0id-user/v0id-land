@@ -21,6 +21,11 @@ model User {
   RegisterGPGKeyId String
   posts            Post[]
   GPGKey           GPGKey[]
+
+  /*
+   Beautiful moment of over engineering a small project ;P
+  */
+  @@index([email])
 }
 
 model GPGKey {
@@ -40,6 +45,8 @@ model Category {
   posts       Post[]
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
+
+  @@index([name])
 }
 
 enum PostStatus {
@@ -49,17 +56,24 @@ enum PostStatus {
 }
 
 model Post {
-  id            String     @id @default(cuid())
-  slug          String?
-  title         String?
-  content       String?
-  createdAt     DateTime   @default(now())
-  updatedAt     DateTime?  @updatedAt
-  status        PostStatus @default(DRAFT)
-  authorId      String
-  author        User       @relation(fields: [authorId], references: [id])
-  signedWithGPG Boolean    @default(false)
+  id   String  @id @default(cuid())
+  slug String? @unique
+
+  title     String?
+  content   String?
+  createdAt DateTime @default(now())
+
+  updatedAt DateTime?  @updatedAt
+  status    PostStatus @default(DRAFT)
+
+  authorId String
+  author   User   @relation(fields: [authorId], references: [id])
+
+  signedWithGPG Boolean @default(false)
   signature     String?
-  workbar       Boolean    @default(false)
-  categories    Category[]
+
+  workbar    Boolean    @default(false)
+  categories Category[]
+
+  @@index([slug])
 }

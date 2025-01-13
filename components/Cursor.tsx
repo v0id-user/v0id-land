@@ -116,8 +116,8 @@ export default function Cursor() {
             }
 
             // Check if element has question mark style
-            const hasQuestionStyle = target.classList.contains('question-hover') || 
-                                   target.closest('.question-hover') !== null;
+            const hasQuestionStyle = target.classList.contains('question-hover') ||
+                target.closest('.question-hover') !== null;
 
             setIsHovered(isInteractive);
             setIsText(!isInteractive && isTextContent);
@@ -131,7 +131,7 @@ export default function Cursor() {
         // Add click handlers
         const handleMouseDown = () => setIsClicking(true);
         const handleMouseUp = () => setIsClicking(false);
-        
+
         document.addEventListener("mousedown", handleMouseDown);
         document.addEventListener("mouseup", handleMouseUp);
 
@@ -148,25 +148,32 @@ export default function Cursor() {
     if (!isVisible || window.matchMedia("(pointer: coarse)").matches) return null;
 
     return (
-        <motion.div
-            className={`custom-cursor ${isText ? "text" : ""} ${isQuestion ? "question" : ""}`}
-            style={{
-                left: smoothX,
-                top: smoothY,
-                ...(isText && { height: textHeight }),
-            }}
-            initial={{ opacity: 0 }}
-            animate={{
-                opacity: 1,
-                scale: isHovered ? 1.5 : 1,
-                ...(isClicking && !isText ? {
-                    scale: isHovered ? 1.2 : 0.8,
-                } : {}),
-            }}
-            transition={{
-                opacity: { duration: 0.1 },
-                scale: { type: "spring", damping: 25, stiffness: 400 }
-            }}
-        />
+        <>
+            <motion.div
+                className={`custom-cursor ${isText ? "text" : ""} ${isQuestion ? "question" : ""}`}
+                style={{
+                    left: smoothX,
+                    top: smoothY,
+                    ...(isText && { height: textHeight }),
+                }}
+                initial={{ opacity: 0 }}
+                animate={{
+                    opacity: 1,
+                    scale: isHovered ? 1.5 : 1,
+                    ...(isClicking && !isText ? {
+                        scale: isHovered ? 1.2 : 0.8,
+                    } : {}),
+                }}
+                transition={{
+                    opacity: { duration: 0.1 },
+                    scale: { type: "spring", damping: 25, stiffness: 400 }
+                }}
+            />
+
+            <pre className="hidden">
+                #V0ID
+                x.com/v0id_user
+            </pre>
+        </>
     );
 }

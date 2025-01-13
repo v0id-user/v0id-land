@@ -6,6 +6,8 @@ export interface BlogPostRequest {
     content: string
     slug: string
     status: PostStatus
+    signedWithGPG: boolean
+    includeWorkbar: boolean
     categories: string[]
     author: string
 }
