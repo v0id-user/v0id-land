@@ -2,20 +2,23 @@
 @tailwind components;
 @tailwind utilities;
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
+html {
+  cursor: none;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+/* Hide cursor on interactive elements */
+a, button, input, textarea, select, [role="button"] {
+  cursor: none !important;
 }
 
 body {
-  color: var(--foreground);
-  background: var(--background);
-  font-family: Arial, Helvetica, sans-serif;
+  background-color: #FFFCF6;
+  font-family: "IBM Plex Sans Arabic", sans-serif;
+  cursor: none;
+}
+
+@layer base {
+  :root {
+    --radius: 0.5rem;
+  }
 }

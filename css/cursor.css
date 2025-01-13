@@ -1,0 +1,60 @@
+.custom-cursor {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 16px;
+    height: 16px;
+    background-color: #fff;
+    mix-blend-mode: difference;
+    border-radius: 50%;
+    pointer-events: none;
+    transform: translate(-50%, -50%);
+    z-index: 999999;
+    transition: width 0.1s ease, height 0.2s ease;
+    will-change: transform, width, height;
+}
+
+.custom-cursor.text {
+    width: 2px;
+    /* height is now controlled by React component */
+    background-color: #fff;
+    mix-blend-mode: difference;
+    border: none;
+    border-radius: 0;
+    transform-origin: center;
+}
+
+.custom-cursor.question {
+    background-color: transparent;
+    mix-blend-mode: difference;
+    border: none;
+    border-radius: 0;
+}
+
+.custom-cursor.question::after {
+    content: "?";
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    color: #fff;
+    font-size: 16px;
+    font-weight: bold;
+}
+
+/* Hide default cursor */
+* {
+    cursor: none !important;
+}
+
+/* Text selection styles */
+::selection {
+    background-color: rgba(255, 99, 71, 0.3);
+    color: inherit;
+}
+
+::-moz-selection {
+    background-color: rgba(255, 99, 71, 0.3);
+    color: inherit;
+}
+  
