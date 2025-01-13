@@ -7,17 +7,20 @@ import Link from '@tiptap/extension-link'
 import { useCallback, useRef, useEffect, useState } from 'react'
 import { Bold, Italic, Heading2, List, ListOrdered, Image as ImageIcon, Link as LinkIcon, Code, Quote } from 'lucide-react'
 import toast from 'react-hot-toast'
-
+import { FormState } from '@/interfaces/state/blog/form'
 
 interface EditorProps {
     onChange?: (html: string) => void;
-    initialContent?: string;
+    currentFormState?: FormState;
+    setFormState?: React.Dispatch<React.SetStateAction<FormState>>;
+    handleSavingDrafts?: () => void;
 }
 
-export default function BlogEditor({ onChange, initialContent = '' }: EditorProps) {
+export default function BlogEditor({ onChange, currentFormState, handleSavingDrafts, setFormState }: EditorProps) {
     const fileInputRef = useRef<HTMLInputElement>(null)
     const [isMounted, setIsMounted] = useState(false)
-    
+    const lastSavedContentRef = useRef<string>(currentFormState?.content ?? '');
+
     const editor = useEditor({
         extensions: [
             StarterKit.configure({
@@ -55,7 +58,7 @@ export default function BlogEditor({ onChange, initialContent = '' }: EditorProp
                 },
             }),
         ],
-        content: initialContent,
+        content: currentFormState?.content ?? '',
         editorProps: {
             attributes: {
                 class: 'prose prose-lg max-w-none focus:outline-none min-h-[70vh] px-0 py-8',
@@ -73,6 +76,7 @@ export default function BlogEditor({ onChange, initialContent = '' }: EditorProp
                 return false
             },
             handlePaste: (view, event) => {
+                // Handle image paste
                 if (event.clipboardData && event.clipboardData.files && event.clipboardData.files[0]) {
                     const file = event.clipboardData.files[0]
                     if (!file.type.startsWith('image/')) {
@@ -81,6 +85,20 @@ export default function BlogEditor({ onChange, initialContent = '' }: EditorProp
                     handleImageUpload(file)
                     return true
                 }
+
+                // Handle text paste
+                setTimeout(() => {
+                    const content = editor?.getHTML();
+                    if (content && setFormState) {
+                        setFormState(prev => ({ ...prev, content }));
+                        
+                        // Trigger save after paste
+                        if (content !== lastSavedContentRef.current) {
+                            handleSavingDrafts?.();
+                        }
+                    }
+                }, 10);
+
                 return false
             },
         },
@@ -94,10 +112,39 @@ export default function BlogEditor({ onChange, initialContent = '' }: EditorProp
     }, [])
 
     useEffect(() => {
-        if (editor && initialContent !== editor.getHTML()) {
-            editor.commands.setContent(initialContent)
+        if (editor && currentFormState?.content !== editor.getHTML()) {
+            editor.commands.setContent(currentFormState?.content ?? '')
         }
-    }, [editor, initialContent])
+    }, [editor, currentFormState])
+
+    useEffect(() => {
+        if (editor) {
+            let timeout: ReturnType<typeof setTimeout>;
+
+            editor.on('update', ({ editor, transaction }) => {
+                // Only proceed if it's a user input or full content update
+                if (!transaction.docChanged) {
+                    return;
+                }
+
+                // Clear any pending timeout
+                if (timeout) {
+                    clearTimeout(timeout);
+                }
+
+                // Set a new timeout to update after 500ms of no changes
+                timeout = setTimeout(() => {
+                    const content = editor.getHTML();
+                    onChange?.(content);
+                }, 500);
+            });
+
+            // Cleanup
+            return () => {
+                if (timeout) clearTimeout(timeout);
+            };
+        }
+    }, [editor, onChange]);
 
     const handleImageUpload = async (file: File) => {
         let lastImagePos: number | null = null;
@@ -307,15 +354,24 @@ export default function BlogEditor({ onChange, initialContent = '' }: EditorProp
             />
 
             <div className="relative">
-                <EditorContent editor={editor} />
+                <EditorContent 
+                    editor={editor} 
+                />
                 <div className="absolute inset-0 pointer-events-none border-2 border-dashed border-transparent transition-colors duration-200 rounded-lg" 
                     style={{ 
                         borderColor: 'var(--drag-color, transparent)',
                     }} 
                 />
             </div>
-            <input type="hidden" name="content" value={editor.getHTML()} />
 
+            <input 
+                type="hidden" 
+                name="content" 
+                value={editor.getHTML()}
+            />
+            
+
+            {/* Custom styles using AI */}
             <style jsx global>{`
                 .ProseMirror-selectednode {
                     outline: 2px solid #68cef8;

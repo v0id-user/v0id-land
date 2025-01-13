@@ -8,6 +8,7 @@ import bcrypt from 'bcrypt';
 import { AuthErrorCode, type AuthResponse } from '@/errors/auth';
 import { createSpacerToken } from '@/lib/token';
 import { cookies } from 'next/headers';
+import { getPublicKey, verifySignature } from '@/lib/gpg';
 
 // Validation schemas
 const loginSchema = z.object({
@@ -165,75 +166,20 @@ export async function register(
             };
         }
 
-        const public_key = await fs.readFile(process.env.GPG_PUBLIC_KEY_PATH, "utf-8");
-        console.log('Public key read successfully');
+        const signatureData = await verifySignature(validatedData.gpgSignature)
 
-        let gpgPk;
-        try {
-            // Load the public key into a opengpg key object
-            gpgPk = await openpgp.readKey({
-                armoredKey: public_key,
-            });
-        } catch (error) {
-            console.log('Error loading public key:', error);
+        if (!signatureData){
             return {
                 success: false,
                 error: {
-                    code: AuthErrorCode.INVALID_GPG_SIGNATURE,
-                    message: 'GPG public key is invalid'
-                }
-            };
-        }
-        console.log('Public key loaded into OpenPGP object');
-
-        let gpgSm;
-        try {
-            // Load signature into a opengpg key object
-            gpgSm = await openpgp.readCleartextMessage({
-                cleartextMessage: gpgSignature,
-            });
-            console.log('GPG signature loaded into OpenPGP object');
-        } catch (error) {
-            console.log('Error loading signature:', error);
-            return {
-                success: false,
-                error: {
-                    code: AuthErrorCode.INVALID_GPG_SIGNATURE,
-                    message: 'GPG signature is invalid'
-                }
-            };
-        }
-        // Verify the signature
-        const verificationResult = await openpgp.verify({
-            message: gpgSm,
-            verificationKeys: gpgPk,
-        });
-        console.log('Signature verification result:', verificationResult.data);
-
-        if (!verificationResult) {
-            console.log('Signature verification failed');
-            return {
-                success: false,
-                error: {
-                    code: AuthErrorCode.INVALID_GPG_SIGNATURE,
-                    message: 'Signature is not valid'
-                }
-            };
-        }
-
-        if (await !verificationResult.signatures[0].verified) {
-            console.log('Signature verification failed');
-            return {
-                success: false,
-                error: {
-                    code: AuthErrorCode.GPG_VERIFICATION_FAILED,
+                    code: AuthErrorCode.GPG_SIGNATURE_MISMATCH,
                     message: 'Signature verification failed'
                 }
             };
         }
 
         // Check the message for if the email does not match the email in the validated data
-        if (verificationResult.data !== validatedData.email) {
+        if (signatureData.data !== validatedData.email) {
             console.log('GPG signature mismatch for email:', validatedData.email);
             return {
                 success: false,
@@ -254,7 +200,7 @@ export async function register(
                 email: validatedData.email,
                 name: validatedData.name,
                 password: hashedPassword,
-                RegisterGPGKeyId: gpgPk.getKeyID().toHex(),
+                RegisterGPGKeyId: signatureData.signatures[0].keyID.toHex(),
             }
         });
 

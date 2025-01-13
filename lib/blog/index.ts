@@ -1,5 +1,5 @@
 import 'server-only'
-import { BlogPostRequest } from "@/interfaces/blog"
+import { BlogPostRequest, BlogPostsResponse } from "@/interfaces/blog"
 import { Post, PostStatus, PrismaClient } from "@prisma/client"
 import { createClient } from "@redis/client"
 
@@ -8,11 +8,38 @@ const redis = createClient({
     url: process.env.REDIS_URL
 })
 
+interface DraftUpdateData {
+    title?: string;
+    content?: string;
+    categories?: string[];
+    signedWithGPG?: boolean;
+    workbar?: boolean;
+}
+
 export async function getPost(id: string): Promise<Post | null> {
     const post = await prisma.post.findUnique({
-        where: { id }
+        where: { id },
+        include: {
+            categories: true
+        }
     })
     return post
+}
+
+export async function getBlogPosts(authorId: string): Promise<BlogPostsResponse[]> {
+    const posts = await prisma.post.findMany({
+        where: { authorId: authorId }
+    })
+
+    const blogPosts: BlogPostsResponse[] = posts.map(post => ({
+        title: post.title ?? "",
+        slug: post.slug ?? "",
+        id: post.id,
+        author: post.authorId
+    }))
+
+    console.log(blogPosts)
+    return blogPosts
 }
 
 export async function getPostBySlug(slug: string): Promise<Post | null> {
@@ -61,27 +88,37 @@ export async function initBlogPostDraft(data: BlogPostRequest): Promise<Post> {
     return post
 }
 
+export async function updateBlogPostDraftUnpublished(data: DraftUpdateData, post: Post): Promise<Post> {
+    // Create or get existing categories
+    const normalizedCategories = data.categories ? [...new Set(data.categories.map(cat => cat.toLowerCase()))] : [];
+    
+    const categories = await Promise.all(
+        normalizedCategories.map(async (name) => {
+            return prisma.category.upsert({
+                where: { name },
+                create: { name },
+                update: {} // No updates needed if exists
+            });
+        })
+    );
 
-export async function updateBlogPostDraftUnpublished(data: BlogPostRequest, post: Post): Promise<Post> {
+    // Update the post with new data
     const updatedPost = await prisma.post.update({
-        where: {
-            id: post.id,
-            AND: {
-                status: {
-                    in: [PostStatus.DRAFT, PostStatus.UNPUBLISHED]
-                }
-            }
-        },
+        where: { id: post.id },
         data: {
             title: data.title,
             content: data.content,
             signedWithGPG: data.signedWithGPG,
-            workbar: data.includeWorkbar,
-
-            // The categories and slug are not set yet, they are set on publish or full update to a published post
-            categories: {},
-            slug: ""
+            workbar: data.workbar,
+            categories: {
+                set: categories.map(cat => ({ id: cat.id }))
+            },
+            updatedAt: new Date()
+        },
+        include: {
+            categories: true
         }
-    })
-    return updatedPost
+    });
+
+    return updatedPost;
 }

@@ -1,14 +1,14 @@
 import { PostStatus } from "@prisma/client"
 
 export interface BlogPostRequest {
-    id: string
-    title: string
-    content: string
-    slug: string
-    status: PostStatus
-    signedWithGPG: boolean
-    includeWorkbar: boolean
-    categories: string[]
+    id?: string
+    title?: string
+    content?: string
+    slug?: string
+    status?: PostStatus
+    signedWithGPG?: boolean
+    includeWorkbar?: boolean
+    categories?: string[]
     author: string
 }
 
@@ -21,3 +21,11 @@ export interface BlogPostResponse {
     categories: string[]
     author: string
 }   
+
+
+export interface BlogPostsResponse {
+    title: string
+    slug: string
+    id: string
+    author: string
+}

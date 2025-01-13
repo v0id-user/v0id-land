@@ -9,7 +9,7 @@ export interface SpacerTokenPayload {
 }
 
 export const createSpacerToken = (payload: SpacerTokenPayload) => {
-    return sign(payload, process.env.JWT_SECRET!, { expiresIn: '1h' })
+    return sign(payload, process.env.JWT_SECRET!, { expiresIn: '30d' })
 }
 
 export const verifyToken = (token: string) => {
