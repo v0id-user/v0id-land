@@ -115,7 +115,7 @@ export default function BlogEditorForm({ spacerData, id }: BlogEditorFormProps) 
             })
         }
         fetchDraft()
-    }, [id, spacerData.id, store])
+    }, [])
 
     return (
         <div className="min-h-screen bg-white">

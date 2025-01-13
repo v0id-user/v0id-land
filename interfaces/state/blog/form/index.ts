@@ -1,7 +1,7 @@
 import { PostStatus } from "@prisma/client";
 import { create } from 'zustand'
 import { updateDraft } from '@/lib/client/blog'
-import { debounce } from 'lodash'
+import debounce from 'lodash/debounce'
 
 export interface FormState {
     id: string;
