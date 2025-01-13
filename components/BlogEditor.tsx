@@ -13,6 +13,7 @@ export default function BlogEditor() {
     const fileInputRef = useRef<HTMLInputElement>(null)
     const [isMounted, setIsMounted] = useState(false)
     const store = useBlogFormStore()
+    const lastContentRef = useRef(store.content)
 
     const editor = useEditor({
         extensions: [
@@ -82,7 +83,8 @@ export default function BlogEditor() {
                 // Handle text paste
                 setTimeout(() => {
                     const content = editor?.getHTML();
-                    if (content) {
+                    if (content && content !== lastContentRef.current) {
+                        lastContentRef.current = content
                         store.setContent(content)
                     }
                 }, 10);
@@ -91,7 +93,11 @@ export default function BlogEditor() {
             },
         },
         onUpdate: ({ editor }) => {
-            store.setContent(editor.getHTML())
+            const content = editor.getHTML()
+            if (content !== lastContentRef.current) {
+                lastContentRef.current = content
+                store.setContent(content)
+            }
         },
     }, []) // Add empty dependency array to avoid re-renders
 
@@ -102,6 +108,7 @@ export default function BlogEditor() {
     useEffect(() => {
         if (editor && store.content !== editor.getHTML()) {
             editor.commands.setContent(store.content)
+            lastContentRef.current = store.content
         }
     }, [editor, store.content])
 
