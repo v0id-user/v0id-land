@@ -9,7 +9,7 @@ import { SpacerTokenPayload } from '@/lib/token'
 import { CreatePostFormData } from '@/app/space/creation/actions'
 import { PostStatus } from '@prisma/client'
 import { Badge } from './ui/badge'
-import { useBlogFormStore } from '@/interfaces/state/blog/form'
+import { useBlogFormStore } from '@/state/blog/form'
 import { getDraft } from '@/lib/client/blog'
 
 const BlogEditor = dynamic(() => import('./BlogEditor'), {
@@ -129,7 +129,7 @@ export default function BlogEditorForm({ spacerData, id }: BlogEditorFormProps) 
                 }}
             >
                 {/* Header Section */}
-                <div className="sticky top-0 z-10 bg-white border-b py-4">
+                <div className="sticky top-0 z-10 bg-white border-b py-4 px-10 rounded-2xl">
                     <div className="flex items-center justify-between">
                         <div className="flex-1">
                             <input
@@ -238,6 +238,7 @@ export default function BlogEditorForm({ spacerData, id }: BlogEditorFormProps) 
                                         store.addCategory(store.categoryInput.trim())
                                     }
                                 } else if (e.key === 'Backspace' && !store.categoryInput && store.categories.length > 0) {
+                                    // Remove the last category
                                     const lastCategory = store.categories[store.categories.length - 1]
                                     store.removeCategory(lastCategory)
                                 }

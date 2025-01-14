@@ -7,7 +7,7 @@ import Link from '@tiptap/extension-link'
 import { useCallback, useRef, useEffect, useState } from 'react'
 import { Bold, Italic, Heading2, List, ListOrdered, Image as ImageIcon, Link as LinkIcon, Code, Quote } from 'lucide-react'
 import toast from 'react-hot-toast'
-import { useBlogFormStore } from '@/interfaces/state/blog/form'
+import { useBlogFormStore } from '@/state/blog/form'
 
 export default function BlogEditor() {
     const fileInputRef = useRef<HTMLInputElement>(null)
@@ -266,7 +266,7 @@ export default function BlogEditor() {
             </BubbleMenu>
 
             {/* Side Toolbar */}
-            <div className="absolute left-0 top-8 -ml-12 flex flex-col gap-2">
+            <div className="absolute left-0 top-8 -ml-12 flex flex-col gap-2 bg-white rounded-lg">
                 <button
                     onClick={addImage}
                     className="p-2 rounded-lg hover:bg-gray-100 transition-colors border border-gray-200 bg-white"
@@ -319,7 +319,7 @@ export default function BlogEditor() {
                 }}
             />
 
-            <div className="relative">
+            <div className="relative bg-white rounded-lg">
                 <EditorContent 
                     editor={editor} 
                 />

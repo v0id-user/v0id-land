@@ -1,7 +1,7 @@
 /*
 * Abstract for blog API calls
 */
-import { FormState } from '@/interfaces/state/blog/form'
+import { FormState } from '@/state/blog/form'
 import { BlogPostResponse } from '@/interfaces/blog'
 
 export async function updateDraft(state: FormState): Promise<BlogPostResponse | null> {
