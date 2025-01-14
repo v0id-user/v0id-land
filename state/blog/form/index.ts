@@ -101,10 +101,31 @@ export const useBlogFormStore = create<BlogFormStore>((set, get) => {
             debouncedSave()
         },
 
-        setCategories: (categories: string[]) => set({ categories }),
+        setCategories: (categories: string[]) => {
+            set({ 
+                categories,
+                textStatus: 'تغييرات غير محفوظة',
+                isDirty: true 
+            })
+            debouncedSave()
+        },
         setCategoryInput: (categoryInput: string) => set({ categoryInput }),
-        setSignedWithGPG: (signedWithGPG: boolean) => set({ signedWithGPG }),
-        setWorkbar: (workbar: boolean) => set({ workbar }),
+        setSignedWithGPG: (signedWithGPG: boolean) => {
+            set({ 
+                signedWithGPG,
+                textStatus: 'تغييرات غير محفوظة',
+                isDirty: true
+            })
+            debouncedSave()
+        },
+        setWorkbar: (workbar: boolean) => {
+            set({ 
+                workbar,
+                textStatus: 'تغييرات غير محفوظة',
+                isDirty: true
+            })
+            debouncedSave()
+        },
         setTextStatus: (textStatus: string) => set({ textStatus }),
 
         setState: (state: Partial<FormState>) => set({
