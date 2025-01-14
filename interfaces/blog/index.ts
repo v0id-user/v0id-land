@@ -1,4 +1,4 @@
-import { PostStatus } from "@prisma/client"
+import { PostStatus, Category } from "@prisma/client"
 
 export interface BlogPostRequest {
     id?: string
@@ -18,6 +18,8 @@ export interface BlogPostResponse {
     content: string
     slug: string
     status: PostStatus
-    categories: string[]
+    categories: Category[]
     author: string
+    signedWithGPG: boolean
+    workbar: boolean
 }

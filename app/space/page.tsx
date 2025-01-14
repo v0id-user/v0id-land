@@ -46,7 +46,7 @@ export default async function Space() {
                             <Badge className={`m-2 ${getBadgeColor(post.status)}`}>{post.status}</Badge>
                             <div className="mt-2 flex flex-wrap gap-2">
                                 {post.categories.map(cat => (
-                                    <Badge key={cat}>{cat}</Badge>
+                                    <Badge key={cat.id}>{cat.name}</Badge>
                                 ))}
                             </div>
                         </Link>

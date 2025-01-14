@@ -20,7 +20,8 @@ export async function getPost(id: string): Promise<Post | null> {
     const post = await prisma.post.findUnique({
         where: { id },
         include: {
-            categories: true
+            categories: true,
+            author: true
         }
     })
     return post
@@ -41,7 +42,9 @@ export async function getBlogPosts(authorId: string): Promise<BlogPostResponse[]
         author: post.authorId,
         content: post.content ?? "",
         status: post.status,
-        categories: post.categories.map(cat => cat.name)
+        categories: post.categories,
+        signedWithGPG: post.signedWithGPG,
+        workbar: post.workbar
     }))
 
     console.log(blogPosts)

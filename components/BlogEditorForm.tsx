@@ -3,7 +3,7 @@
 import dynamic from 'next/dynamic'
 import { publishPost } from '@/app/space/creation/actions'
 import { Lock, LayoutPanelTop, X } from 'lucide-react'
-import { useEffect } from 'react'
+import { useEffect, useRef } from 'react'
 import toast from 'react-hot-toast'
 import { SpacerTokenPayload } from '@/lib/token'
 import { CreatePostFormData } from '@/app/space/creation/actions'
@@ -22,16 +22,17 @@ interface BlogEditorFormProps {
     id: string;
 }
 
-interface DraftResponse {
-    id: string;
-    title?: string;
-    content?: string;
-    categories?: { name: string }[];
-    status: PostStatus;
-}
-
 export default function BlogEditorForm({ spacerData, id }: BlogEditorFormProps) {
     const store = useBlogFormStore()
+    const idRef = useRef(id);
+    const spacerDataIdRef = useRef(spacerData.id);
+    const storeRef = useRef(store);
+
+    useEffect(() => {
+        idRef.current = id;
+        spacerDataIdRef.current = spacerData.id;
+        storeRef.current = store;
+    });
 
     const handleTitleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         store.setTitle(e.target.value)
@@ -50,7 +51,7 @@ export default function BlogEditorForm({ spacerData, id }: BlogEditorFormProps) 
         }
     }
 
-    const handleSubmit = async (formData: FormData) => {
+    const handleSubmit = async () => {
         try {
             if (!store.title?.trim()) {
                 toast.error('يرجى إدخال عنوان للمقال')
@@ -96,26 +97,28 @@ export default function BlogEditorForm({ spacerData, id }: BlogEditorFormProps) 
         }
     }
 
-    // Initial state load
+    
     useEffect(() => {
         const fetchDraft = async () => {
-            const draft = await getDraft(id) as DraftResponse | null
+            const draft = await getDraft(idRef.current)
             
             if (!draft) return
 
             const categories = draft.categories?.map(cat => cat.name.toLowerCase()) ?? []
 
-            store.setState({
+            storeRef.current.setState({
                 title: draft?.title ?? '',
                 content: draft?.content ?? '',
                 categories,
-                id: draft?.id ?? id,
+                id: draft?.id ?? idRef.current,
                 status: draft?.status ?? PostStatus.DRAFT,
-                author: spacerData.id
+                author: spacerDataIdRef.current,
+                signedWithGPG: draft?.signedWithGPG ?? false,
+                workbar: draft?.workbar ?? false,
             })
         }
         fetchDraft()
-    }, [])
+    }, []);
 
     return (
         <div className="min-h-screen bg-white">
