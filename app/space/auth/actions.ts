@@ -3,10 +3,11 @@
 import { z } from 'zod';
 import { PrismaClient } from '@prisma/client';
 import bcrypt from 'bcrypt';
-import { AuthErrorCode, type AuthResponse } from '@/errors/auth';
+import { AuthErrorCode } from '@/errors/auth';
 import { createSpacerToken } from '@/lib/token';
 import { cookies } from 'next/headers';
 import { verifySignature } from '@/lib/gpg';
+import { LoginRequest, RegisterRequest, AuthResponse } from '@/interfaces/space/auth';
 
 // Validation schemas
 const loginSchema = z.object({
@@ -21,12 +22,9 @@ const registerSchema = z.object({
     password: z.string().min(8, 'Password must be at least 8 characters'),
 });
 
-// Types based on schemas
-export type LoginInput = z.infer<typeof loginSchema>;
-export type RegisterInput = z.infer<typeof registerSchema>;
 const prisma = new PrismaClient();
 
-export async function login(email: string, password: string): Promise<AuthResponse> {
+export async function login({ email, password }: LoginRequest): Promise<AuthResponse> {
     try {
         console.log('Starting login process for:', email);
         
@@ -114,12 +112,7 @@ export async function login(email: string, password: string): Promise<AuthRespon
     }
 }
 
-export async function register(
-    email: string,
-    name: string,
-    gpgSignature: string,
-    password: string
-): Promise<AuthResponse> {
+export async function register({ email, name, gpgSignature, password }: RegisterRequest): Promise<AuthResponse> {
     try {
         console.log('Starting registration process for:', email);
         // Validate input

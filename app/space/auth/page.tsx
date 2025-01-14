@@ -2,9 +2,10 @@
 
 import { useState } from 'react';
 import { login, register } from './actions';
-import { errorMessages, AuthErrorCode, type AuthResponse } from '../../../errors/auth';
+import { errorMessages, AuthErrorCode } from '@/errors/auth';
 import { toast } from 'react-hot-toast';
 import { useRouter } from 'next/navigation';
+import { LoginRequest, RegisterRequest, AuthResponse } from '@/interfaces/space/auth';
 
 export default function SpaceAuth() {
     const router = useRouter();
@@ -21,23 +22,25 @@ export default function SpaceAuth() {
             let response: AuthResponse;
 
             if (isLogin) {
-                response = await login(
-                    formData.get('email') as string,
-                    formData.get('password') as string
-                );
+                const loginData: LoginRequest = {
+                    email: formData.get('email') as string,
+                    password: formData.get('password') as string,
+                };
+                response = await login(loginData);
             } else {
-                response = await register(
-                    formData.get('email') as string,
-                    formData.get('name') as string,
-                    formData.get('gpgSignature') as string,
-                    formData.get('password') as string
-                );
+                const registerData: RegisterRequest = {
+                    email: formData.get('email') as string,
+                    name: formData.get('name') as string,
+                    gpgSignature: formData.get('gpgSignature') as string,
+                    password: formData.get('password') as string,
+                };
+                response = await register(registerData);
             }
 
             if (response.success) {
                 router.replace('/space');
             } else if (response.error) {
-                const message = errorMessages['ar'][response.error.code];
+                const message = errorMessages['ar'][response.error.code as AuthErrorCode];
                 toast.error(message || response.error.message);
             }
         } catch (error) {
