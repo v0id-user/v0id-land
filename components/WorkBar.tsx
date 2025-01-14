@@ -6,7 +6,7 @@ import Link from "next/link";
 export default function WorkBar() {
     return (
         <>
-            <div className="relative w-[200px] xs:w-[225px] sm:w-[250px] md:w-[275px] h-[50px] p-[2px] from-[#FFFCF6] to-[#D7CCB8] rounded-full" dir="ltr">
+            <div className="relative w-[200px] xs:w-[225px] sm:w-[250px] md:w-[275px] h-[50px] p-[2px] from-[#F6EFE0] to-[#D7CCB8] rounded-full" dir="ltr">
                 <motion.div
                     className="pointer-events-none absolute -inset-[1px] rounded-full"
                     style={{
@@ -31,7 +31,7 @@ export default function WorkBar() {
                         ease: "linear"
                     }}
                 />
-                <div className="flex items-center justify-between h-full bg-[#FFFCF6] rounded-full px-4">
+                <div className="flex items-center justify-between h-full bg-[#f8f2e6] shadow-sm rounded-full px-4">
                     <button
                         className="w-[70px] xs:w-[80px] sm:w-[90px] md:w-[100px] h-[35px] bg-gradient-to-b from-[#FFFCF6] to-[#D7CCB8] rounded-full shadow-sm 
                                 flex items-center justify-center hover:shadow-md transition-shadow duration-300 border border-[#E8E2D7] border-opacity-70"
