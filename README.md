@@ -1,11 +1,11 @@
 # V0ID Land
-<div style="text-align: center; font-size: 1.05rem; font-style: italic;">
+<div align="center" style="text-align: center; font-size: 1.05rem; font-style: italic;">
     My Personal Space & Website to express, write, and share my thoughts, ideas, projects and my personal journey and experiences also including my personal data. It works as a central point for me.
 </div>
 
 ![image of the landing page](assets/landing_page.jpg)
 
-<div style="text-align: center;">
+<div align="center" style="text-align: center;">
     <div>
         <a href="https://v0id.me/about" style="margin: 0 15px;">About</a>
         <a href="https://v0id.me/blog" style="margin: 0 15px;">Blogs</a>
