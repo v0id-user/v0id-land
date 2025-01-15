@@ -11,17 +11,23 @@ interface ExtendedPost extends Post {
     categories: { name: string }[];
 }
 
-export default function Blog({ params }: { params: { id: string } }) {
+type Props = {
+    params: Promise<{ id: string }>
+    searchParams: Promise<{ [key: string]: string | string[] | undefined }>
+}
+
+export default function Blog({ params }: Props) {
     const [post, setPost] = useState<ExtendedPost | null>(null);
+    
     useEffect(() => {
         const fetchPost = async () => {
-            const postId = (await params).id; // Directly access id from params
-            const post = await getPostPublished(postId) as ExtendedPost | null;
+            const id = (await params).id;
+            const post = await getPostPublished(id) as ExtendedPost | null;
             console.log(post);
             setPost(post);
         }
         fetchPost();
-    }, [params]) // Added params as a dependency
+    }, [params])
 
     return (
         <main>
