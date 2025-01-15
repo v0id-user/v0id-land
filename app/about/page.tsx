@@ -7,6 +7,7 @@ import Link from "next/link";
 import { languages, frameworks, databases, tools, TechInfo, libraries, lifeTools, cloudServices } from "@/app/about/expertise";
 import { useState, useEffect } from "react";
 import Footer from "@/components/Footer";
+import BackToMain from "@/components/BackToMain";
 
 interface TooltipProps {
     content: string;
@@ -203,7 +204,7 @@ export default function About() {
                 transition={{ duration: 1 }}
             >
                 <div className="max-w-3xl mx-auto">
-                    <Link href="/" className="text-gray-600 hover:text-black transition-colors text-sm sm:text-base">← العودة للصفحة الرئيسية</Link>
+                    <BackToMain />
                     <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold text-center mb-8 mt-10">#V0ID</h1>
 
                     <div className="space-y-6 text-right" dir="rtl">

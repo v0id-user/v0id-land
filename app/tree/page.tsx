@@ -1,5 +1,6 @@
 "use client"
 
+import BackToMain from "@/components/BackToMain";
 import Link from "next/link";
 import { useState } from "react";
 
@@ -13,10 +14,11 @@ export default function TreePage() {
     };
 
     return (
-        <div className="flex flex-col items-center min-h-screen justify-center gap-4 p-4" dir="rtl">
-            <Link href="/" className="text-gray-600 hover:text-black transition-colors text-sm sm:text-base mb-6">
-                العودة للصفحة الرئيسية ←
-            </Link>
+        <div className="flex flex-col items-center min-h-screen justify-center gap-4 p-4 " dir="rtl">
+            
+            <div className="mb-6">
+                <BackToMain />
+            </div>
             
             <div className="flex flex-col items-center gap-4 w-full max-w-sm">
                 <h1 className="text-4xl font-bold mb-4">#V0ID</h1>

@@ -5,6 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import Link from "next/link";
 import { motion } from "framer-motion";
 import { useEffect, useState } from "react";
+import BackToMain from "@/components/BackToMain";
 
 export default function Portfolio() {
     const [isMobile, setIsMobile] = useState(false);
@@ -41,7 +42,7 @@ export default function Portfolio() {
             className="min-h-screen bg-background py-8 px-4 sm:py-12 sm:px-6 lg:px-8"
         >
             <div className="max-w-5xl mx-auto">
-                <Link href="/" className="text-gray-600 hover:text-black transition-colors text-sm sm:text-base">← العودة للصفحة الرئيسية</Link>
+                <BackToMain />
 
                 <div className="text-center mb-8 sm:mb-12">
                     <h1 className="text-3xl sm:text-4xl font-bold tracking-tight">معرض أعمالي ورحلتي التقنية</h1>

@@ -58,7 +58,7 @@ export default function Home() {
         >
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4 sm:gap-8 pt-8">
             <Link className="text-base sm:text-lg hover:text-gray-600 transition-colors" href="/about">من أنا؟</Link>
-            <Link className="text-base sm:text-lg hover:text-gray-600 transition-colors" href="mailto:hey@v0id.me">تواصل معي</Link>
+            <Link className="text-base sm:text-lg hover:text-gray-600 transition-colors" href="/tree">تواصل معي</Link>
             <Link className="text-base sm:text-lg hover:text-gray-600 transition-colors" href="/portfolio">معرض الأعمال</Link>
             <Link className="text-base sm:text-lg hover:text-gray-600 transition-colors" href="/blog">المدونة</Link>
           </div>
