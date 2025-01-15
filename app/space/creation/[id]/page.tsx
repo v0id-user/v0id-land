@@ -2,10 +2,12 @@ import BlogEditorForm from "@/components/BlogEditorForm";
 import { getSpacerToken } from "@/lib/token";
 import { redirect } from "next/navigation";
 
+
 type Props = {
     params: Promise<{ id: string }>
     searchParams: Promise<{ [key: string]: string | string[] | undefined }>
 }
+export const dynamic = 'force-dynamic';
 
 export default async function Creation({ params }: Props) {
     const id = (await params).id;
