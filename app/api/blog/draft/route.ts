@@ -4,6 +4,8 @@ import { updateBlogPostDraftUnpublished, getPost, initBlogPostDraft } from "@/li
 import { PostStatus } from "@prisma/client";
 import { BlogPostRequest } from "@/interfaces/blog";
 
+export const maxDuration = 30; // 30 seconds timeout
+
 export async function POST(request: NextRequest) {
     console.log('Received POST request for draft creation or update.');
 

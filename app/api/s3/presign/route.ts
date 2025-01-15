@@ -3,6 +3,8 @@ import { S3Client, PutObjectCommand, HeadObjectCommand } from "@aws-sdk/client-s
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 import { NextResponse } from "next/server";
 
+export const maxDuration = 30; // 30 seconds timeout
+
 // Initialize S3 client with standard AWS configuration
 const s3Client = new S3Client({
     region: process.env.AWS_REGION || 'auto',
