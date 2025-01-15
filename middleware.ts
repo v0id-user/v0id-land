@@ -1,6 +1,44 @@
 import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
-import { getSpacerToken } from '@/lib/token'
+/*
+To solve
+Error: The Edge Function "middleware" is referencing unsupported modules:
+	- __vc__ns__/0/middleware.js: @/lib/token
+---
+Duplication for @/lib/token? Blame vercel >:( !
+*/
+
+import { verify } from 'jsonwebtoken'
+import { cookies } from 'next/headers'
+
+interface SpacerTokenPayload {
+    email: string
+    name: string
+    id: string
+}
+
+
+const getSpacerToken = async () => {
+    try {
+        const cookie = await cookies()
+        const who = cookie.get("spacer_token")
+
+        if (!who) {
+            return null;
+        }
+
+        if (!process.env.JWT_SECRET) {
+            throw new Error("JWT_SECRET is not set");
+        }
+
+        const token = verify(who.value, process.env.JWT_SECRET) as SpacerTokenPayload;
+
+        return token;
+    } catch (error) {
+        console.error("Error verifying token:", error);
+        return null;
+    }
+}
 
 export async function middleware(request: NextRequest) {
     const hostname = request.headers.get('host') || ''
