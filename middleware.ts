@@ -13,6 +13,12 @@ export async function middleware(request: NextRequest) {
         return NextResponse.rewrite(new URL('/gpg', request.url))
     }
 
+    // Check if it's a CV subdomain request
+    const isCvSubdomain = hostname.startsWith('cv.')
+    if (isCvSubdomain) {
+        return NextResponse.rewrite(new URL('/cv', request.url))
+    }
+
     // Check API routes
     const isApiRoute = request.url.startsWith('/api/blog/draft')
     if (isApiRoute && request.method === 'POST') {

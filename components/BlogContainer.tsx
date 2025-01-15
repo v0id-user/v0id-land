@@ -6,6 +6,7 @@ import Link from "next/link";
 import BlogContent from "@/components/BlogContent";
 import { getSpacerToken } from "@/lib/token";
 import Footer from "@/components/Footer";
+import ScrollToTop from "@/components/ScrollToTop";
 
 interface ExtendedPost extends Post {
     author: User;
@@ -15,6 +16,8 @@ interface ExtendedPost extends Post {
 export default async function BlogContainer({ post }: { post: ExtendedPost }) {
     const spacer = await getSpacerToken()
     const access = spacer?.id === post.authorId
+
+
     return (
         <article className="w-[95%] sm:w-[90%] max-w-3xl mx-auto py-4 sm:py-8">
             <div className="flex flex-col gap-4 sm:gap-8">
@@ -100,6 +103,7 @@ export default async function BlogContainer({ post }: { post: ExtendedPost }) {
                 </div>
                 <Footer />
             </div>
+            <ScrollToTop />
         </article>
     );
 }

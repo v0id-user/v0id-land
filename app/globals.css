@@ -4,6 +4,7 @@
 
 html {
   cursor: none;
+  opacity: 0.9;
 }
 
 /* Hide cursor on interactive elements */

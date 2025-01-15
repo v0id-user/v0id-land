@@ -4,7 +4,7 @@ import { Badge } from "@/components/ui/badge";
 import WorkBar from "@/components/WorkBar";
 import { motion } from "motion/react";
 import Link from "next/link";
-import { languages, frameworks, databases, tools, TechInfo, libraries, lifeTools, cloudServices } from "./expertise";
+import { languages, frameworks, databases, tools, TechInfo, libraries, lifeTools, cloudServices } from "@/app/about/expertise";
 import { useState, useEffect } from "react";
 import Footer from "@/components/Footer";
 
