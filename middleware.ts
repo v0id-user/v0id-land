@@ -1,22 +1,13 @@
 import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
-/*
-To solve
-Error: The Edge Function "middleware" is referencing unsupported modules:
-	- __vc__ns__/0/middleware.js: @/lib/token
----
-Duplication for @/lib/token? Blame vercel >:( !
-*/
-
-import { verify } from 'jsonwebtoken'
+import { jwtVerify, JWTPayload } from 'jose'
 import { cookies } from 'next/headers'
 
-interface SpacerTokenPayload {
+interface SpacerTokenPayload extends JWTPayload {
     email: string
     name: string
     id: string
 }
-
 
 const getSpacerToken = async () => {
     try {
@@ -31,9 +22,18 @@ const getSpacerToken = async () => {
             throw new Error("JWT_SECRET is not set");
         }
 
-        const token = verify(who.value, process.env.JWT_SECRET) as SpacerTokenPayload;
-
-        return token;
+        const secret = new TextEncoder().encode(process.env.JWT_SECRET);
+        const { payload } = await jwtVerify(who.value, secret);
+        
+        // Validate the payload has the required properties
+        if (!payload.email || !payload.name || !payload.id || 
+            typeof payload.email !== 'string' || 
+            typeof payload.name !== 'string' || 
+            typeof payload.id !== 'string') {
+            throw new Error("Invalid token payload");
+        }
+        
+        return payload as SpacerTokenPayload;
     } catch (error) {
         console.error("Error verifying token:", error);
         return null;
