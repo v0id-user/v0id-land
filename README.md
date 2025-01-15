@@ -1,6 +1,6 @@
 # V0ID Land
 <div align="center" style="text-align: center; font-size: 1.05rem; font-style: italic;">
-    My Personal Space & Website to express, write, and share my thoughts, ideas, projects and my personal journey and experiences also including my personal data. It works as a central point for me.
+    My Personal Space & Website to express, write, and share my thoughts, ideas, projects and my personal journey and experiences also including my personal contact information and a lot of different ways to reach me. It works as a central point for me.
 </div>
 
 ![image of the landing page](assets/landing_page.jpg)

@@ -42,19 +42,16 @@ const getSpacerToken = async () => {
 
 export async function middleware(request: NextRequest) {
     const hostname = request.headers.get('host') || ''
+    const subdomainMap: Record<string, string> = {
+        'gpg.': '/gpg',
+        'cv.': '/cv',
+        'tree.': '/tree',
+    };
 
-    // Check if it's a GPG subdomain request
-    const isGpgSubdomain = hostname.startsWith('gpg.')
-
-    if (isGpgSubdomain) {
-        // Rewrite the URL to the GPG page
-        return NextResponse.rewrite(new URL('/gpg', request.url))
-    }
-
-    // Check if it's a CV subdomain request
-    const isCvSubdomain = hostname.startsWith('cv.')
-    if (isCvSubdomain) {
-        return NextResponse.rewrite(new URL('/cv', request.url))
+    for (const [subdomain, path] of Object.entries(subdomainMap)) {
+        if (hostname.startsWith(subdomain)) {
+            return NextResponse.rewrite(new URL(path, request.url));
+        }
     }
 
     // Check API routes
