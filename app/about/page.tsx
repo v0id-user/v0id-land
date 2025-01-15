@@ -6,6 +6,7 @@ import { motion } from "motion/react";
 import Link from "next/link";
 import { languages, frameworks, databases, tools, TechInfo, libraries, lifeTools, cloudServices } from "./expertise";
 import { useState, useEffect } from "react";
+import Footer from "@/components/Footer";
 
 interface TooltipProps {
     content: string;
@@ -261,12 +262,7 @@ export default function About() {
                             <WorkBar />
                         </div>
 
-                        <footer
-                            className="w-full text-center text-sm text-gray-500 pt-6"
-                            dir="ltr"
-                        >
-                            جميع الحقوق محفوظة © {new Date().getFullYear()} #V0ID
-                        </footer>
+                        <Footer />
                     </div>
                 </div>
             </motion.div>

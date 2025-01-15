@@ -14,7 +14,7 @@ export async function middleware(request: NextRequest) {
     }
 
     // Check API routes
-    const isApiRoute = request.url.startsWith('/api')
+    const isApiRoute = request.url.startsWith('/api/blog/draft')
     if (isApiRoute && request.method === 'POST') {
         const token = await getSpacerToken();
         if (!token) {

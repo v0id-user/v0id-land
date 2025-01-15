@@ -1,14 +1,13 @@
 'use server';
 
 import { z } from 'zod';
-import { PrismaClient } from '@prisma/client';
 import bcrypt from 'bcrypt';
 import { AuthErrorCode } from '@/errors/auth';
 import { createSpacerToken } from '@/lib/token';
 import { cookies } from 'next/headers';
 import { verifySignature } from '@/lib/gpg';
 import { LoginRequest, RegisterRequest, AuthResponse } from '@/interfaces/space/auth';
-
+import prisma from '@/lib/prisma';
 // Validation schemas
 const loginSchema = z.object({
     email: z.string().email('Invalid email format'),
@@ -22,7 +21,6 @@ const registerSchema = z.object({
     password: z.string().min(8, 'Password must be at least 8 characters'),
 });
 
-const prisma = new PrismaClient();
 
 export async function login({ email, password }: LoginRequest): Promise<AuthResponse> {
     try {

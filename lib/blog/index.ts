@@ -1,12 +1,14 @@
 import 'server-only'
 import { BlogPostRequest, BlogPostResponse } from "@/interfaces/blog"
-import { Post, PrismaClient, PostStatus } from "@prisma/client"
-import { createClient } from "@redis/client"
+import { Post, PostStatus } from "@prisma/client"
+import prisma from "@/lib/prisma"
 
-const prisma = new PrismaClient()
-const redis = createClient({
-    url: process.env.REDIS_URL
-})
+// import { createClient } from "@redis/client"
+
+// TODO: Add caching and invalidate cache on post update or save
+// const redis = createClient({
+//     url: process.env.REDIS_URL
+// })
 
 interface DraftUpdateData {
     title?: string;
@@ -19,6 +21,42 @@ interface DraftUpdateData {
 export async function getPost(id: string): Promise<Post | null> {
     const post = await prisma.post.findUnique({
         where: { id },
+        include: {
+            categories: true,
+            author: true
+        }
+    })
+    return post
+}
+
+export async function getPublishedPosts(): Promise<Post[]> {
+    const posts = await prisma.post.findMany({
+        where: {
+            status: 'PUBLISHED'
+        },
+        include: {
+            author: {
+                select: {
+                    name: true
+                }
+            },
+            categories: {
+                select: {
+                    name: true
+                }
+            }
+        },
+        orderBy: {
+            createdAt: 'desc'
+        }
+    });
+
+    return posts
+}
+
+export async function getPostPublished(id: string): Promise<Post | null> {
+    const post = await prisma.post.findUnique({
+        where: { id, status: PostStatus.PUBLISHED },
         include: {
             categories: true,
             author: true
@@ -51,28 +89,27 @@ export async function getBlogPosts(authorId: string): Promise<BlogPostResponse[]
     return blogPosts
 }
 
-export async function getPostBySlug(slug: string): Promise<Post | null> {
-    // Cache the post in redis
-    const cachedPost = await redis.get(slug)
-
-    if (cachedPost) {
-        // Cache hit
-        return JSON.parse(cachedPost) as Post
-    }
-
-    // Cache miss
-    const post = await prisma.post.findUnique({
-        where: { slug: slug }
-    })
-
-    if (!post) {
+export async function getPostPublishedBySlug(slug: string): Promise<Post | null> {
+    try {
+        const post = await prisma.post.findUnique({
+            where: {
+                slug: slug,
+                status: PostStatus.PUBLISHED
+            },
+            include: {
+                author: true,
+                categories: {
+                    select: {
+                        name: true
+                    }
+                }
+            }
+        })
+        return post
+    } catch (error) {
+        console.error('Error fetching post:', error)
         return null
     }
-
-    // Cache the post in redis for 1 Day | Don't await
-    redis.set(slug, JSON.stringify(post), { EX: (60 * 60 * 24) })
-
-    return post
 }
 
 export async function initBlogPostDraft(data: BlogPostRequest): Promise<Post> {

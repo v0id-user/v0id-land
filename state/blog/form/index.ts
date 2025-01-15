@@ -1,6 +1,6 @@
 import { PostStatus } from "@prisma/client";
 import { create } from 'zustand'
-import { updateDraft } from '@/lib/client/blog'
+import { updateDraft } from '@/lib/client/blog/draft'
 import debounce from 'lodash/debounce'
 
 export interface FormState {
@@ -20,6 +20,7 @@ export interface FormState {
 }
 
 interface BlogFormStore extends FormState {
+    setStatus: (status: PostStatus) => void;
     setTitle: (title: string) => void;
     setContent: (content: string) => void;
     setCategories: (categories: string[]) => void;
@@ -43,13 +44,13 @@ export const useBlogFormStore = create<BlogFormStore>((set, get) => {
         try {
             set({ textStatus: 'جاري الحفظ' })
             const response = await updateDraft(state)
-            
+
             if (!response) {
                 set({ textStatus: 'فشل في الحفظ' })
                 return
             }
 
-            set({ 
+            set({
                 textStatus: 'تم الحفظ',
                 lastSavedContent: state.content,
                 isDirty: false
@@ -83,8 +84,8 @@ export const useBlogFormStore = create<BlogFormStore>((set, get) => {
         isDirty: false,
 
         // Actions
-        setTitle: (title: string) => set({ 
-            title, 
+        setTitle: (title: string) => set({
+            title,
             textStatus: 'تغييرات غير محفوظة',
             isDirty: true
         }),
@@ -93,7 +94,7 @@ export const useBlogFormStore = create<BlogFormStore>((set, get) => {
             const state = get()
             if (content === state.content) return
 
-            set({ 
+            set({
                 content,
                 textStatus: 'تغييرات غير محفوظة',
                 isDirty: true
@@ -102,16 +103,16 @@ export const useBlogFormStore = create<BlogFormStore>((set, get) => {
         },
 
         setCategories: (categories: string[]) => {
-            set({ 
+            set({
                 categories,
                 textStatus: 'تغييرات غير محفوظة',
-                isDirty: true 
+                isDirty: true
             })
             debouncedSave()
         },
         setCategoryInput: (categoryInput: string) => set({ categoryInput }),
         setSignedWithGPG: (signedWithGPG: boolean) => {
-            set({ 
+            set({
                 signedWithGPG,
                 textStatus: 'تغييرات غير محفوظة',
                 isDirty: true
@@ -119,13 +120,16 @@ export const useBlogFormStore = create<BlogFormStore>((set, get) => {
             debouncedSave()
         },
         setWorkbar: (workbar: boolean) => {
-            set({ 
+            set({
                 workbar,
                 textStatus: 'تغييرات غير محفوظة',
                 isDirty: true
             })
             debouncedSave()
         },
+
+        setStatus: (status: PostStatus) => set({ status }),
+
         setTextStatus: (textStatus: string) => set({ textStatus }),
 
         setState: (state: Partial<FormState>) => set({
@@ -133,11 +137,11 @@ export const useBlogFormStore = create<BlogFormStore>((set, get) => {
             lastSavedContent: state.content || get().lastSavedContent,
             isDirty: false
         }),
-        
+
         addCategory: (category: string) => {
             const { categories } = get()
             if (!categories.includes(category.toLowerCase())) {
-                set({ 
+                set({
                     categories: [...categories, category.toLowerCase()],
                     categoryInput: '',
                     textStatus: 'تغييرات غير محفوظة',
@@ -146,10 +150,10 @@ export const useBlogFormStore = create<BlogFormStore>((set, get) => {
                 debouncedSave()
             }
         },
-        
+
         removeCategory: (categoryToRemove: string) => {
             const { categories } = get()
-            set({ 
+            set({
                 categories: categories.filter((cat: string) => cat !== categoryToRemove),
                 textStatus: 'تغييرات غير محفوظة',
                 isDirty: true
@@ -164,13 +168,13 @@ export const useBlogFormStore = create<BlogFormStore>((set, get) => {
             try {
                 set({ textStatus: 'جاري الحفظ' })
                 const response = await updateDraft(state)
-                
+
                 if (!response) {
                     set({ textStatus: 'فشل في الحفظ' })
                     return
                 }
 
-                set({ 
+                set({
                     textStatus: 'تم الحفظ',
                     lastSavedContent: state.content,
                     isDirty: false

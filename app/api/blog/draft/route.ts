@@ -57,3 +57,20 @@ export async function POST(request: NextRequest) {
         return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
     }
 }
+
+
+// /api/blog?id=123
+export async function GET(request: Request) {
+    const token = await getSpacerToken();
+    if (!token) {
+        console.log('Unauthorized access attempt.');
+        return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+    const { searchParams } = new URL(request.url)
+    const id = searchParams.get('id')
+    if (!id) {
+        return NextResponse.json({ error: "No id provided" }, { status: 400 })
+    }
+    const draft = await getPost(id)
+    return NextResponse.json(draft)
+}   

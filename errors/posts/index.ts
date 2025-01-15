@@ -9,6 +9,7 @@ export enum SpaceErrorCode {
 
     // User error
     POST_ID_REQUIRED = 'POST_ID_REQUIRED',  
+    ACCESS_TOKEN_REQUIRED = 'ACCESS_TOKEN_REQUIRED',
 
     // Post Operation Errors
     POST_NOT_FOUND = 'POST_NOT_FOUND',
@@ -16,6 +17,8 @@ export enum SpaceErrorCode {
     POST_UPDATE_FAILED = 'POST_UPDATE_FAILED',
     POST_DELETE_FAILED = 'POST_DELETE_FAILED',
     POST_NOT_DRAFT = 'POST_NOT_DRAFT',
+    POST_PUBLISH_FAILED = 'POST_NOT_PUBLISHED',
+    POST_UNPUBLISH_FAILED = 'POST_UNPUBLISH_FAILED',
     
     // Category Related Errors
     CATEGORY_CREATION_FAILED = 'CATEGORY_CREATION_FAILED',
@@ -43,6 +46,7 @@ export type SpaceResponse = {
 // Error messages for different languages
 export const errorMessages = {
     ar: {
+        [SpaceErrorCode.ACCESS_TOKEN_REQUIRED]: 'يجب أن يكون الرمز الوصول موجود في المساحة',
         [SpaceErrorCode.INVALID_TITLE]: 'العنوان غير صالح',
         [SpaceErrorCode.INVALID_CONTENT]: 'المحتوى غير صالح',
         [SpaceErrorCode.INVALID_CATEGORIES]: 'التصنيفات غير صالحة',
@@ -50,8 +54,10 @@ export const errorMessages = {
         [SpaceErrorCode.INVALID_ID]: 'المنشور غير موجود',
         [SpaceErrorCode.POST_ID_REQUIRED]: 'يجب أن يكون المنشور موجود في المساحة',
         [SpaceErrorCode.POST_NOT_FOUND]: 'المنشور غير موجود',
+        [SpaceErrorCode.POST_UNPUBLISH_FAILED]: 'فشل إلغاء نشر المنشور',
         [SpaceErrorCode.POST_CREATION_FAILED]: 'فشل إنشاء المنشور',
         [SpaceErrorCode.POST_UPDATE_FAILED]: 'فشل تحديث المنشور',
+        [SpaceErrorCode.POST_PUBLISH_FAILED]: 'فشل نشر المنشور',
         [SpaceErrorCode.POST_DELETE_FAILED]: 'فشل حذف المنشور',
         [SpaceErrorCode.POST_NOT_DRAFT]: 'المنشور غير مسودة',
         [SpaceErrorCode.CATEGORY_CREATION_FAILED]: 'فشل إنشاء التصنيف',

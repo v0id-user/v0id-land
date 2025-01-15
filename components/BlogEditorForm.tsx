@@ -1,8 +1,9 @@
 'use client'
 
 import dynamic from 'next/dynamic'
-import { publishPost } from '@/app/space/creation/actions'
+import { publishPost, unpublishPost } from '@/app/space/creation/actions'
 import { Lock, LayoutPanelTop, X } from 'lucide-react'
+import Link from 'next/link'
 import { useEffect, useRef } from 'react'
 import toast from 'react-hot-toast'
 import { SpacerTokenPayload } from '@/lib/token'
@@ -10,7 +11,7 @@ import { CreatePostFormData } from '@/app/space/creation/actions'
 import { PostStatus } from '@prisma/client'
 import { Badge } from './ui/badge'
 import { useBlogFormStore } from '@/state/blog/form'
-import { getDraft } from '@/lib/client/blog'
+import { getDraft } from '@/lib/client/blog/draft'
 
 const BlogEditor = dynamic(() => import('./BlogEditor'), {
     ssr: false,
@@ -64,6 +65,7 @@ export default function BlogEditorForm({ spacerData, id }: BlogEditorFormProps) 
             }
 
             const formInterface = {
+                id: id,
                 author: spacerData.id,
                 title: store.title,
                 content: store.content,
@@ -72,10 +74,31 @@ export default function BlogEditorForm({ spacerData, id }: BlogEditorFormProps) 
                 categories: store.categories,
             } as CreatePostFormData
 
-            await publishPost(formInterface)
-            toast.success('تم نشر المقال بنجاح')
+            let response;
+            if (store.status === PostStatus.PUBLISHED) {
+                response = await unpublishPost(id)
+            } else {
+                response = await publishPost(formInterface)
+            }
+            if (response.success && response.post) {
+                store.setState({
+                    status: response.post.status,
+                    slug: response.post.slug || undefined,
+                    isDirty: false
+                })
+                if (store.status === PostStatus.PUBLISHED) {
+                    toast.success('تم إلغاء نشر المقال بنجاح')
+                } else {
+                    toast.success('تم نشر المقال بنجاح')
+                }
+                setTimeout(() => {
+                    window.location.reload()
+                }, 400)
+            } else {
+                toast.error(response.error?.message || 'حدث خطأ أثناء نشر المقال')
+            }
         } catch (error) {
-            console.error('Error creating post:', error)
+            console.error('Error publishing post:', error)
             toast.error('حدث خطأ أثناء نشر المقال')
         }
     }
@@ -97,12 +120,30 @@ export default function BlogEditorForm({ spacerData, id }: BlogEditorFormProps) 
         }
     }
 
-    
+    const getStatusColor = (status: PostStatus) => {
+        switch (status) {
+            case PostStatus.DRAFT:
+                return 'bg-gray-500 text-white'
+            case PostStatus.UNPUBLISHED:
+                return 'bg-yellow-500 text-white'
+            case PostStatus.PUBLISHED:
+                return 'bg-green-500 text-white'
+        }
+    }
+
+
     useEffect(() => {
         const fetchDraft = async () => {
             const draft = await getDraft(idRef.current)
-            
-            if (!draft) return
+
+            if (!draft) {
+                toast.error('لا يوجد مقال محفوظ')
+                toast.error('ستيم تحويلك إلى صفحة المقالات')
+                setTimeout(() => {
+                    window.location.href = '/space'
+                }, 2000)
+                return
+            }
 
             const categories = draft.categories?.map(cat => cat.name.toLowerCase()) ?? []
 
@@ -115,6 +156,7 @@ export default function BlogEditorForm({ spacerData, id }: BlogEditorFormProps) 
                 author: spacerDataIdRef.current,
                 signedWithGPG: draft?.signedWithGPG ?? false,
                 workbar: draft?.workbar ?? false,
+                slug: draft?.slug ?? '',
             })
         }
         fetchDraft()
@@ -198,14 +240,22 @@ export default function BlogEditorForm({ spacerData, id }: BlogEditorFormProps) 
                                 <Badge className={`${getSaveStatusBadgeClass()} text-sm transition-colors duration-200`}>
                                     {store.textStatus}
                                 </Badge>
+
+                                <Badge className={`${getStatusColor(store.status)} text-sm transition-colors duration-200`}>
+                                    {store.status}
+                                </Badge>
                             </div>
 
                             <button
                                 type="submit"
                                 className={`px-6 py-2 bg-black text-white rounded-full hover:bg-gray-800 transition text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed`}
                             >
-                                نشر
+                                {store.status === PostStatus.PUBLISHED ? 'إلغاء النشر' : 'نشر'}
                             </button>
+                            {store.status === PostStatus.PUBLISHED && 
+                            <Link href={`/blog/${store.slug}`} className="text-sm text-black bg-gray-100 px-4 py-1.5 rounded-full hover:bg-gray-200 transition">
+                                الذهاب إلى المقال
+                            </Link>}
                         </div>
                     </div>
 

@@ -53,6 +53,7 @@ export default function BlogEditor() {
             }),
         ],
         content: store.content,
+        immediatelyRender: false,
         editorProps: {
             attributes: {
                 class: 'prose prose-lg max-w-none focus:outline-none min-h-[70vh] px-0 py-8',
