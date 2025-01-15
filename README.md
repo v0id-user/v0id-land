@@ -15,7 +15,8 @@
 
 
 ## Features
-- Blogging System with GPG Signing
+- Custom Blogging System with GPG Signing
+- Blog Editor Built With TipTap and Improved with Custom Components
 - File Storage and Management
   - File Upload/Download
   - File Sharing
@@ -25,6 +26,7 @@
 - Real-time Auto-Drafting using PostgreSQL and SSE
 - Authentication System with Root GPG technique
 - Modern UI with Next.js and TailwindCSS
+- Custom Cursor
 
 ## Tech Stack
 - **Frontend**: Next.js, React, TailwindCSS
