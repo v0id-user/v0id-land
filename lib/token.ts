@@ -16,6 +16,7 @@ export const verifyToken = (token: string) => {
     return verify(token, process.env.JWT_SECRET!)
 }
 
+
 export const getSpacerToken = async () => {
     try {
         const cookie = await cookies()

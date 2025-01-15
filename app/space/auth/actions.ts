@@ -144,8 +144,8 @@ export async function register({ email, name, gpgSignature, password }: Register
         }
 
         // Validate the gpg signature
-        if (!process.env.GPG_PUBLIC_KEY_PATH) {
-            console.log('GPG public key path not found in environment variables');
+        if (!process.env.GPG_PUBLIC_KEY) {
+            console.log('GPG public key not found in environment variables');
             return {
                 success: false,
                 error: {

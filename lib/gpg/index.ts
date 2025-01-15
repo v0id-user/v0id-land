@@ -1,22 +1,20 @@
 import * as openpgp from 'openpgp'
-import fs from 'fs/promises'
 
-export async function getPublicKey(): Promise<{ public_key: string, lastModified: string }> {
-    if (!process.env.GPG_PUBLIC_KEY_PATH) {
-        throw new Error("GPG_PUBLIC_KEY_PATH environment variable is not set");
+export async function getPublicKey(): Promise<{ public_key: string }> {
+    if (!process.env.GPG_PUBLIC_KEY) {
+        throw new Error("GPG_PUBLIC_KEY environment variable is not set");
     }
 
-    const public_key = await fs.readFile(process.env.GPG_PUBLIC_KEY_PATH, "utf-8");
-    const stats = await fs.stat(process.env.GPG_PUBLIC_KEY_PATH);
-    return { public_key, lastModified: stats.mtime.toLocaleDateString() }
+    const public_key = process.env.GPG_PUBLIC_KEY
+    return { public_key }
 }
 
 export async function getPrivateKey(): Promise<string> {
-    if (!process.env.GPG_PRIVATE_KEY_PATH) {
-        throw new Error("GPG_PRIVATE_KEY_PATH environment variable is not set");
+    if (!process.env.GPG_PRIVATE_KEY) {
+        throw new Error("GPG_PRIVATE_KEY environment variable is not set");
     }
 
-    const private_key = await fs.readFile(process.env.GPG_PRIVATE_KEY_PATH, "utf-8");
+    const private_key = process.env.GPG_PRIVATE_KEY
     return private_key
 }
 

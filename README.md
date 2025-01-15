@@ -1,6 +1,6 @@
 # V0ID Land
 <div align="center" style="text-align: center; font-size: 1.05rem; font-style: italic;">
-    My Personal Space & Website to express, write, and share my thoughts, ideas, projects and my personal journey and experiences also including my personal contact information and a lot of different ways to reach me. It works as a central point for me.
+    My Personal Space & Website to express, write, and share my thoughts, ideas, projects and my personal journey and experiences also including my personal data. It works as a central point for me.
 </div>
 
 ![image of the landing page](assets/landing_page.jpg)
@@ -55,8 +55,9 @@ DATABASE_URL=postgresql://postgres:@localhost:5432/land?schema=public
 REDIS_URL=redis://localhost:6379
 
 # GPG Keys
-GPG_PUBLIC_KEY_PATH=keys/your_public_key.asc
-GPG_PRIVATE_KEY_PATH=keys/your_private_key.asc
+GPG_PUBLIC_KEY=-----BEGIN PGP PUBLIC KEY BLOCK----- ... Complete Public Key ... -----END PGP PUBLIC KEY BLOCK-----
+GPG_PRIVATE_KEY=-----BEGIN PGP PRIVATE KEY BLOCK----- ... Complete Private Key ... -----END PGP PRIVATE KEY BLOCK-----
+
 
 # JWT
 JWT_SECRET=your_secure_jwt_secret
