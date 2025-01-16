@@ -23,3 +23,17 @@ export interface BlogPostResponse {
     signedWithGPG: boolean
     workbar: boolean
 }
+
+
+export interface BlogCard {
+    id: string
+    title: string
+    slug: string
+    createdAt: string
+    author: {
+        name: string
+    }
+    categories: {
+        name: string
+    }[]
+}

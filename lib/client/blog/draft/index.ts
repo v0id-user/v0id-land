@@ -1,7 +1,17 @@
 import { apiClient } from "@/lib/client"
-
 import { BlogPostResponse } from "@/interfaces/blog"
 import { FormState } from "@/state/blog/form"
+
+interface ApiError {
+    cached?: boolean;
+    data?: BlogPostResponse;
+    message?: string;
+    response?: {
+        data: unknown;
+        status: number;
+    };
+    stack?: string;
+}
 
 export async function getDraft(id: string): Promise<BlogPostResponse | null> {
     try {
@@ -31,14 +41,34 @@ export async function updateDraft(state: FormState): Promise<BlogPostResponse | 
             id: state.id,
             title: state.title,
             content: state.content,
-            categories: state.categories.map(cat => cat.toLowerCase()),
+            categories: state.categories,
             signedWithGPG: state.signedWithGPG,
             workbar: state.workbar,
+            status: state.status,
+            author: state.author
         })
+
+        if (!response.data) {
+            throw new Error('No data received from server')
+        }
 
         return response.data as BlogPostResponse
     } catch (error) {
-        console.error('Error updating draft:', error)
+        // Handle cached response
+        const apiError = error as ApiError
+        if (apiError.cached && apiError.data) {
+            return apiError.data as BlogPostResponse
+        }
+
+        // Handle regular errors
+        const errorDetails = {
+            message: apiError.message || 'Unknown error',
+            response: apiError.response?.data || 'No response data',
+            status: apiError.response?.status || 'No status',
+            stack: apiError.stack
+        }
+        
+        console.error('Error updating draft:', errorDetails)
         return null
     }
 }

@@ -1,10 +1,16 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getSpacerToken } from "@/lib/token";
-import { updateBlogPostDraftUnpublished, getPost, initBlogPostDraft } from "@/lib/blog";
+import { updateBlogPostDraftUnpublished, getPostNoCache, initBlogPostDraft } from "@/lib/blog";
 import { PostStatus } from "@prisma/client";
 import { BlogPostRequest } from "@/interfaces/blog";
 
-export const maxDuration = 30; // 30 seconds timeout
+export const maxDuration = 30;
+
+interface CategoryLike {
+    name: string;
+}
+
+type CategoryInput = string | CategoryLike;
 
 export async function POST(request: NextRequest) {
     console.log('Received POST request for draft creation or update.');
@@ -22,7 +28,12 @@ export async function POST(request: NextRequest) {
         const blogPostData: BlogPostRequest = data as BlogPostRequest;
         // Normalize categories to lowercase if present
         if (blogPostData.categories) {
-            blogPostData.categories = [...new Set(blogPostData.categories.map((cat: string) => cat.toLowerCase()))];
+            blogPostData.categories = [...new Set(blogPostData.categories.map((cat: CategoryInput) => {
+                if (typeof cat === 'string') {
+                    return cat.toLowerCase();
+                }
+                return cat.name.toLowerCase();
+            }))];
             console.log('Normalized categories:', blogPostData.categories);
         }
 
@@ -36,7 +47,7 @@ export async function POST(request: NextRequest) {
 
         // Otherwise, update existing post
         console.log('Fetching existing post with ID:', data.id);
-        const existingPost = await getPost(data.id);
+        const existingPost = await getPostNoCache(data.id);
         if (!existingPost) {
             console.log('Post not found for ID:', data.id);
             return NextResponse.json({ error: 'Post not found' }, { status: 404 });
@@ -60,7 +71,6 @@ export async function POST(request: NextRequest) {
     }
 }
 
-
 // /api/blog?id=123
 export async function GET(request: Request) {
     const token = await getSpacerToken();
@@ -73,6 +83,6 @@ export async function GET(request: Request) {
     if (!id) {
         return NextResponse.json({ error: "No id provided" }, { status: 400 })
     }
-    const draft = await getPost(id)
+    const draft = await getPostNoCache(id)
     return NextResponse.json(draft)
 }   

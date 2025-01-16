@@ -4,7 +4,8 @@ import { Post, User } from "@prisma/client";
 import { getPostPublished } from "@/lib/client/blog";
 import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
-import React from "react";
+import Loader from "@/components/Loader";
+import { setCache, getCache } from "@/lib/client/cache"; // Import cache functions
 
 interface ExtendedPost extends Post {
     author: User;
@@ -18,16 +19,32 @@ type Props = {
 
 export default function Blog({ params }: Props) {
     const [post, setPost] = useState<ExtendedPost | null>(null);
+    const [loading, setLoading] = useState(true);
     
     useEffect(() => {
         const fetchPost = async () => {
             const id = (await params).id;
-            const post = await getPostPublished(id) as ExtendedPost | null;
-            console.log(post);
-            setPost(post);
+            const cachedPost = getCache<ExtendedPost>(`post_${id}`); // Try to get from cache
+            
+            if (cachedPost) {
+                setPost(cachedPost); // Set post from cache
+                setLoading(false);
+            } else {
+                const post = await getPostPublished(id) as ExtendedPost | null;
+                console.log(post);
+                if (post) {
+                    setPost(post);
+                    setCache(`post_${id}`, post); // Cache the fetched post
+                }
+                setLoading(false);
+            }
         }
         fetchPost();
     }, [params])
+
+    if (loading) {
+        return <Loader />
+    }
 
     return (
         <main>

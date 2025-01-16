@@ -40,7 +40,7 @@ export default async function BlogContainer({ post }: { post: ExtendedPost }) {
 
                         {/* GPG Signature Status */}
                         {post.signedWithGPG ? (
-                            <Link href={`/blog/verify/${post.id}`} className="flex underline items-center gap-1 text-green-600 hover:text-green-700 transition-colors flex-shrink-0">
+                            <Link href={`/blog/verify/${post.id}`} target="_blank" className="flex underline items-center gap-1 text-green-600 hover:text-green-700 transition-colors flex-shrink-0">
                                 <ShieldCheck className="w-3 h-3 sm:w-4 sm:h-4" />
                                 <span>موقع بـ GPG</span>
                             </Link>
