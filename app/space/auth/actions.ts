@@ -231,7 +231,7 @@ export async function register({ email, name, gpgSignature, password }: Register
             of this instance of the function. All this async machinery for what? ~62 BYTES?! 
             We could read those ~62 bytes synchronously, quickly, and no one would care.
             Yeah If I was a multi-billion dollar company I would use async for my bloatware cookies
-            like "google level" cookies of trackers and shit, but not I'm bot I'm a simple guy
+            like "google level" cookies of trackers and shit, but not I'm NOT I'm a simple guy
             who wants a sync function to access cookies to portect his simple blog site.
         
             All love,
