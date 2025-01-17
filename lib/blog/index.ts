@@ -1,5 +1,5 @@
 import 'server-only'
-import { BlogPostRequest, BlogPostResponse } from "@/interfaces/blog"
+import {  BlogPostRequest, BlogPostResponse, BlogsResponse } from "@/interfaces/blog"
 import { Post, PostStatus } from "@prisma/client"
 import prisma from "@/lib/prisma"
 import redis from "@/lib/redis"
@@ -58,7 +58,7 @@ export async function getPost(id: string): Promise<Post | null> {
     return post;
 }
 
-export async function getPublishedPosts(): Promise<Post[]> {
+export async function getPublishedPosts(): Promise<BlogsResponse[]> {
     // Try to get from cache first
     const cached = await redis.get(ALL_POSTS_CACHE_KEY);
     if (cached) {
@@ -67,9 +67,12 @@ export async function getPublishedPosts(): Promise<Post[]> {
 
     const posts = await prisma.post.findMany({
         where: {
-            status: 'PUBLISHED'
+            status: PostStatus.PUBLISHED
         },
-        include: {
+        select: {
+            id: true,
+            title: true,
+            slug: true,
             author: {
                 select: {
                     name: true
@@ -79,7 +82,9 @@ export async function getPublishedPosts(): Promise<Post[]> {
                 select: {
                     name: true
                 }
-            }
+            },
+            signedWithGPG: true,
+            createdAt: true
         },
         orderBy: {
             createdAt: 'desc'
@@ -87,7 +92,19 @@ export async function getPublishedPosts(): Promise<Post[]> {
     });
 
     await redis.setex(ALL_POSTS_CACHE_KEY, CACHE_TTL, JSON.stringify(posts));
-    return posts;
+
+    const blogPosts: BlogsResponse[] = posts.map(post => ({
+        post: {
+            id: post.id ?? "",
+            title: post.title ?? "", 
+            slug: post.slug ?? "",
+            createdAt: post.createdAt.toISOString(),
+            author: post.author ?? { name: "" },
+            categories: post.categories ?? [],
+            signedWithGPG: post.signedWithGPG
+        }
+    }));
+    return blogPosts;
 }
 
 export async function getPostPublished(id: string): Promise<Post | null> {
@@ -103,8 +120,16 @@ export async function getPostPublished(id: string): Promise<Post | null> {
     const post = await prisma.post.findUnique({
         where: { id, status: PostStatus.PUBLISHED },
         include: {
-            categories: true,
-            author: true
+            categories: {
+                select: {
+                    name: true
+                }
+            },
+            author: {
+                select: {
+                    name: true
+                }
+            }
         }
     });
 

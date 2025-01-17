@@ -4,6 +4,8 @@ import { BlogCard as BlogCardType } from '@/interfaces/blog'
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Loader from '@/components/Loader'
+import { Shield } from 'lucide-react'
+import { ShieldCheck } from 'lucide-react'
 
 interface BlogCardProps {
     post: BlogCardType
@@ -57,7 +59,6 @@ export default function BlogCard({ post, index }: BlogCardProps) {
                         <Loader />
                     </div>
                 )}
-                
                 {/* Post Title */}
                 <h2 className="text-2xl font-semibold mb-2 group-hover:text-gray-600 transition-colors">
                     {post.title}
@@ -68,6 +69,24 @@ export default function BlogCard({ post, index }: BlogCardProps) {
                     <span>{post.author.name}</span>
                     <span>•</span>
                     <span>{new Date(post.createdAt).toLocaleDateString('ar-SA')}</span>
+                    {post.signedWithGPG ? (
+                        <div 
+                            onClick={(e) => {
+                                e.preventDefault();
+                                e.stopPropagation();
+                                window.open(`/blog/verify/${post.id}`, '_blank');
+                            }}
+                            className="flex underline items-center gap-1 text-green-600 hover:text-green-700 transition-colors flex-shrink-0 cursor-pointer"
+                        >
+                            <ShieldCheck className="w-3 h-3 sm:w-4 sm:h-4" />
+                            <span>موقع بـ GPG</span>
+                        </div>
+                    ) : (
+                        <div className="flex items-center gap-1 text-gray-400 flex-shrink-0">
+                            <Shield className="w-3 h-3 sm:w-4 sm:h-4" />
+                            <span>غير موقع</span>
+                        </div>
+                    )}
                 </div>
 
                 {/* Categories */}

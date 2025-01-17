@@ -1,5 +1,5 @@
 import 'client-only'
-import { BlogCard } from "@/interfaces/blog"
+import { BlogsResponse, BlogCard } from "@/interfaces/blog"
 import { Post, User } from "@prisma/client"
 
 const CACHE_PREFIX = 'blog_cache_'
@@ -57,11 +57,23 @@ function getCache<T>(key: string): T | null {
 
 // Blog-specific cache functions
 export function setBlogListCache(posts: BlogCard[]): void {
-    setCache(CACHE_KEYS.BLOG_LIST, posts)
+    // Transform flat structure to nested before caching
+    const transformedPosts: BlogsResponse[] = posts.map(post => ({
+        post: {
+            id: post.id,
+            title: post.title,
+            slug: post.slug,
+            createdAt: post.createdAt,
+            author: post.author,
+            categories: post.categories,
+            signedWithGPG: post.signedWithGPG
+        }
+    }))
+    setCache(CACHE_KEYS.BLOG_LIST, transformedPosts)
 }
 
-export function getBlogListCache(): BlogCard[] | null {
-    return getCache<BlogCard[]>(CACHE_KEYS.BLOG_LIST)
+export function getBlogListCache(): BlogsResponse[] | null {
+    return getCache<BlogsResponse[]>(CACHE_KEYS.BLOG_LIST)
 }
 
 export function setBlogPostCache(slug: string, post: ExtendedPost): void {

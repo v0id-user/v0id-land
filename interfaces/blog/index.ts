@@ -36,4 +36,9 @@ export interface BlogCard {
     categories: {
         name: string
     }[]
+    signedWithGPG: boolean
+}
+
+export interface BlogsResponse {
+    post: BlogCard
 }

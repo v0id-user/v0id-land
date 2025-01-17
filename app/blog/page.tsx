@@ -3,13 +3,13 @@
 import { useEffect, useState } from 'react'
 import { motion } from 'motion/react'
 import Link from 'next/link'
-import { apiClient } from '@/lib/client'
 import BlogCard, { BlogCardSkeleton } from '@/components/BlogCard'
-import { BlogCard as BlogCardType } from '@/interfaces/blog'
+import { BlogsResponse } from '@/interfaces/blog'
 import { getBlogListCache, setBlogListCache } from '@/lib/cache/blog/client'
+import { getPublishedPosts } from '@/lib/client/blog'
 
 export default function Blog() {
-    const [posts, setPosts] = useState<BlogCardType[]>([])
+    const [posts, setPosts] = useState<BlogsResponse[]>([])
     const [isLoading, setIsLoading] = useState(true)
 
     useEffect(() => {
@@ -24,11 +24,12 @@ export default function Blog() {
                 }
 
                 // If not in cache, fetch from API
-                const response = await apiClient.get('/blog')
-                setPosts(response.data)
-                
-                // Save to cache
-                setBlogListCache(response.data)
+                const apiPosts = await getPublishedPosts()
+                console.log('API Response:', apiPosts)
+                setPosts(apiPosts)
+
+                // Save to cache - extract the BlogCard data from the response
+                setBlogListCache(apiPosts.map(p => p.post))
             } catch (error) {
                 console.error('Failed to fetch posts:', error)
             } finally {
@@ -75,9 +76,19 @@ export default function Blog() {
                                 <BlogCardSkeleton key={index} />
                             ))
                         ) : (
-                            posts.map((post, index) => (
-                                <BlogCard key={post.id} post={post} index={index} />
-                            ))
+                            posts.map((blogResponse, index) => {
+                                if (!blogResponse.post) {
+                                    console.warn('Invalid post data:', blogResponse)
+                                    return null
+                                }
+                                return (
+                                    <BlogCard 
+                                        key={blogResponse.post.id} 
+                                        post={blogResponse.post} 
+                                        index={index} 
+                                    />
+                                );
+                            })
                         )}
                     </motion.div>
                 </section>
