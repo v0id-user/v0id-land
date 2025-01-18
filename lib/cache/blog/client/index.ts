@@ -1,6 +1,5 @@
 import 'client-only'
-import { BlogsResponse, BlogCard } from "@/interfaces/blog"
-import { Post, User } from "@prisma/client"
+import { BlogsResponse, ExtendedPost } from "@/interfaces/blog"
 
 const CACHE_PREFIX = 'blog_cache_'
 const CACHE_DURATION = 30 * 60 * 1000 // 30 minutes in milliseconds
@@ -8,11 +7,6 @@ const CACHE_DURATION = 30 * 60 * 1000 // 30 minutes in milliseconds
 interface CacheItem<T> {
     data: T
     timestamp: number
-}
-
-interface ExtendedPost extends Post {
-    author: User;
-    categories: { name: string }[];
 }
 
 // Cache keys
@@ -56,24 +50,25 @@ function getCache<T>(key: string): T | null {
 }
 
 // Blog-specific cache functions
-export function setBlogListCache(posts: BlogCard[]): void {
+export function setBlogListCache(posts: BlogsResponse[]): void {
     // Transform flat structure to nested before caching
     const transformedPosts: BlogsResponse[] = posts.map(post => ({
         post: {
-            id: post.id,
-            title: post.title,
-            slug: post.slug,
-            createdAt: post.createdAt,
-            author: post.author,
-            categories: post.categories,
-            signedWithGPG: post.signedWithGPG
+            id: post.post.id,
+            title: post.post.title,
+            slug: post.post.slug,
+            createdAt: post.post.createdAt,
+            author: post.post.author,
+            categories: post.post.categories,
+            signedWithGPG: post.post.signedWithGPG
         }
     }))
     setCache(CACHE_KEYS.BLOG_LIST, transformedPosts)
 }
 
 export function getBlogListCache(): BlogsResponse[] | null {
-    return getCache<BlogsResponse[]>(CACHE_KEYS.BLOG_LIST)
+    const cachedPosts = getCache<BlogsResponse[]>(CACHE_KEYS.BLOG_LIST);
+    return cachedPosts ?? null; // Ensure we return null if cachedPosts is undefined
 }
 
 export function setBlogPostCache(slug: string, post: ExtendedPost): void {

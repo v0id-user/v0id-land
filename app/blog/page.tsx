@@ -29,7 +29,7 @@ export default function Blog() {
                 setPosts(apiPosts)
 
                 // Save to cache - extract the BlogCard data from the response
-                setBlogListCache(apiPosts.map(p => p.post))
+                setBlogListCache(apiPosts)
             } catch (error) {
                 console.error('Failed to fetch posts:', error)
             } finally {
@@ -53,6 +53,7 @@ export default function Blog() {
                 {/* Header */}
                 <header>
                     <motion.h1
+                        key="blog-title"
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ duration: 0.5 }}
@@ -64,33 +65,47 @@ export default function Blog() {
 
                 {/* Blog Posts List */}
                 <section className="w-full max-w-3xl px-4">
-                    <motion.div
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        transition={{ delay: 0.2, duration: 0.5 }}
-                        className="space-y-8"
-                    >
-                        {isLoading ? (
-                            // Show skeleton loading state
-                            Array.from({ length: 3 }).map((_, index) => (
-                                <BlogCardSkeleton key={index} />
-                            ))
-                        ) : (
-                            posts.map((blogResponse, index) => {
-                                if (!blogResponse.post) {
-                                    console.warn('Invalid post data:', blogResponse)
-                                    return null
-                                }
-                                return (
-                                    <BlogCard 
-                                        key={blogResponse.post.id} 
-                                        post={blogResponse.post} 
-                                        index={index} 
-                                    />
-                                );
-                            })
-                        )}
-                    </motion.div>
+                    {isLoading ? (
+                        <motion.div
+                            key={`loading-container-${Math.random()}`}
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            transition={{ delay: 0.2, duration: 0.5 }}
+                            className="space-y-8"
+                        >
+                            {Array.from({ length: 3 }).map((_, index) => (
+                                <BlogCardSkeleton key={`skeleton-${index}`} />
+                            ))}
+                        </motion.div>
+                    ) : (
+                        <motion.div
+                            key={`posts-container-${Math.random()}`}
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            transition={{ delay: 0.2, duration: 0.5 }}
+                            className="space-y-8"
+                        >
+                            {posts && posts.length > 0 ? (
+                                posts.map((blogResponse, index) => {
+                                    if (!blogResponse?.post || Object.keys(blogResponse.post).length === 0) {
+                                        console.warn('Invalid or empty post data:', blogResponse)
+                                        return null
+                                    }
+                                    return (
+                                        <BlogCard 
+                                            key={`${blogResponse.post.id}-${index}-${Math.random()}`} 
+                                            post={blogResponse.post} 
+                                            index={index} 
+                                        />
+                                    )
+                                })
+                            ) : (
+                                <div className="text-center text-gray-500">
+                                    لايوجد
+                                </div>
+                            )}
+                        </motion.div>
+                    )}
                 </section>
             </div>
         </main>

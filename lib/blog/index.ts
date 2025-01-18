@@ -1,21 +1,8 @@
 import 'server-only'
-import {  BlogPostRequest, BlogPostResponse, BlogsResponse } from "@/interfaces/blog"
+import { BlogPostRequest, BlogPostResponse, BlogsResponse } from "@/interfaces/blog"
 import { Post, PostStatus } from "@prisma/client"
 import prisma from "@/lib/prisma"
-import redis from "@/lib/redis"
-
-const CACHE_TTL = 3600; // 1 hour in seconds
-const POST_CACHE_PREFIX = "post:";
-const SLUG_CACHE_PREFIX = "slug:";
-const ALL_POSTS_CACHE_KEY = "all_published_posts";
-
-async function invalidatePostCache(post: Post) {
-    await Promise.all([
-        redis.del(`${POST_CACHE_PREFIX}${post.id}`),
-        post.slug ? redis.del(`${SLUG_CACHE_PREFIX}${post.slug}`) : Promise.resolve(),
-        redis.del(ALL_POSTS_CACHE_KEY)
-    ]);
-}
+import { getBlogPostByIdCache, setBlogPostByIdCache, getBlogListCache, setBlogListCache, getBlogPostCache, setBlogPostCache, invalidatePostCache, toPostWithSafeAuthor } from "@/lib/cache/blog/server"
 
 interface DraftUpdateData {
     title?: string;
@@ -30,7 +17,12 @@ export async function getPostNoCache(id: string): Promise<Post | null> {
         where: { id },
         include: {
             categories: true,
-            author: true
+            author: {
+                select: {
+                    id: true,
+                    name: true
+                }
+            }
         }
     });
     return post
@@ -38,95 +30,18 @@ export async function getPostNoCache(id: string): Promise<Post | null> {
 
 export async function getPost(id: string): Promise<Post | null> {
     // Try to get from cache first
-    const cached = await redis.get(`${POST_CACHE_PREFIX}${id}`);
+    const cached = await getBlogPostByIdCache(id);
     if (cached) {
-        return JSON.parse(cached);
+        return cached;
     }
 
     const post = await prisma.post.findUnique({
         where: { id },
         include: {
             categories: true,
-            author: true
-        }
-    });
-
-    if (post) {
-        await redis.setex(`${POST_CACHE_PREFIX}${id}`, CACHE_TTL, JSON.stringify(post));
-    }
-
-    return post;
-}
-
-export async function getPublishedPosts(): Promise<BlogsResponse[]> {
-    // Try to get from cache first
-    const cached = await redis.get(ALL_POSTS_CACHE_KEY);
-    if (cached) {
-        return JSON.parse(cached);
-    }
-
-    const posts = await prisma.post.findMany({
-        where: {
-            status: PostStatus.PUBLISHED
-        },
-        select: {
-            id: true,
-            title: true,
-            slug: true,
             author: {
                 select: {
-                    name: true
-                }
-            },
-            categories: {
-                select: {
-                    name: true
-                }
-            },
-            signedWithGPG: true,
-            createdAt: true
-        },
-        orderBy: {
-            createdAt: 'desc'
-        }
-    });
-
-    await redis.setex(ALL_POSTS_CACHE_KEY, CACHE_TTL, JSON.stringify(posts));
-
-    const blogPosts: BlogsResponse[] = posts.map(post => ({
-        post: {
-            id: post.id ?? "",
-            title: post.title ?? "", 
-            slug: post.slug ?? "",
-            createdAt: post.createdAt.toISOString(),
-            author: post.author ?? { name: "" },
-            categories: post.categories ?? [],
-            signedWithGPG: post.signedWithGPG
-        }
-    }));
-    return blogPosts;
-}
-
-export async function getPostPublished(id: string): Promise<Post | null> {
-    // Try to get from cache first
-    const cached = await redis.get(`${POST_CACHE_PREFIX}${id}`);
-    if (cached) {
-        const post = JSON.parse(cached);
-        if (post.status === PostStatus.PUBLISHED) {
-            return post;
-        }
-    }
-
-    const post = await prisma.post.findUnique({
-        where: { id, status: PostStatus.PUBLISHED },
-        include: {
-            categories: {
-                select: {
-                    name: true
-                }
-            },
-            author: {
-                select: {
+                    id: true,
                     name: true
                 }
             }
@@ -134,7 +49,75 @@ export async function getPostPublished(id: string): Promise<Post | null> {
     });
 
     if (post) {
-        await redis.setex(`${POST_CACHE_PREFIX}${id}`, CACHE_TTL, JSON.stringify(post));
+        await setBlogPostByIdCache(id, toPostWithSafeAuthor(post));
+    }
+
+    return post;
+}
+
+export async function getPublishedPosts(): Promise<BlogsResponse[]> {
+    // Try to get from cache first
+    const cached = await getBlogListCache();
+    if (cached) {
+        return cached;
+    }
+
+    const posts = await prisma.post.findMany({
+        where: {
+            status: PostStatus.PUBLISHED
+        },
+        include: {
+            author: {
+                select: {
+                    id: true,
+                    name: true
+                }
+            },
+            categories: true
+        },
+        orderBy: {
+            createdAt: 'desc'
+        }
+    });
+
+    const blogPosts: BlogsResponse[] = posts.map(post => ({
+        post: {
+            id: post.id ?? "",
+            title: post.title ?? "", 
+            slug: post.slug ?? "",
+            createdAt: post.createdAt.toISOString(),
+            author: { name: post.author.name },
+            categories: post.categories ?? [],
+            signedWithGPG: post.signedWithGPG
+        }
+    }));
+
+    await setBlogListCache(blogPosts);
+    return blogPosts;
+}
+
+export async function getPostPublished(id: string): Promise<Post | null> {
+    // Try to get from cache first
+    const cached = await getBlogPostByIdCache(id);
+    if (cached && cached.status === PostStatus.PUBLISHED) {
+        return cached;
+    }
+
+    const post = await prisma.post.findUnique({
+        where: { id, status: PostStatus.PUBLISHED },
+        include: {
+            categories: true,
+            author: {
+                select: {
+                    id: true,
+                    name: true
+                }
+            }
+        }
+    });
+
+    if (post) {
+        await setBlogPostByIdCache(id, toPostWithSafeAuthor(post));
     }
 
     return post;
@@ -144,7 +127,13 @@ export async function getBlogPosts(authorId: string): Promise<BlogPostResponse[]
     const posts = await prisma.post.findMany({
         where: { authorId: authorId },
         include: {
-            categories: true
+            categories: true,
+            author: {
+                select: {
+                    id: true,
+                    name: true
+                }
+            }
         }
     })
 
@@ -160,19 +149,15 @@ export async function getBlogPosts(authorId: string): Promise<BlogPostResponse[]
         workbar: post.workbar
     }))
 
-    console.log(blogPosts)
     return blogPosts
 }
 
 export async function getPostPublishedBySlug(slug: string): Promise<Post | null> {
     try {
         // Try to get from cache first
-        const cached = await redis.get(`${SLUG_CACHE_PREFIX}${slug}`);
-        if (cached) {
-            const post = JSON.parse(cached);
-            if (post.status === PostStatus.PUBLISHED) {
-                return post;
-            }
+        const cached = await getBlogPostCache(slug);
+        if (cached && cached.status === PostStatus.PUBLISHED) {
+            return cached;
         }
 
         const post = await prisma.post.findUnique({
@@ -181,17 +166,20 @@ export async function getPostPublishedBySlug(slug: string): Promise<Post | null>
                 status: PostStatus.PUBLISHED
             },
             include: {
-                author: true,
-                categories: {
+                author: {
                     select: {
+                        id: true,
                         name: true
                     }
-                }
+                },
+                categories: true
             }
         });
 
-        if (post) {
-            await redis.setex(`${SLUG_CACHE_PREFIX}${slug}`, CACHE_TTL, JSON.stringify(post));
+        if (post && post.status === PostStatus.PUBLISHED) {
+            const safePost = toPostWithSafeAuthor(post);
+            // We know it's published because we checked post.status
+            await setBlogPostCache(slug, { ...safePost, status: PostStatus.PUBLISHED });
         }
 
         return post;
@@ -262,3 +250,4 @@ export async function updateBlogPostDraftUnpublished(data: DraftUpdateData, post
 
     return updatedPost;
 }
+

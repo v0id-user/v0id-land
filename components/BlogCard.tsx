@@ -35,16 +35,17 @@ export function BlogCardSkeleton() {
         </div>
     )
 }
-
 export default function BlogCard({ post, index }: BlogCardProps) {
-    const [isLoading, setIsLoading] = useState(false)
-    const router = useRouter()
+    const [isLoading, setIsLoading] = useState(false);
+    const router = useRouter();
 
     const handleClick = async (e: React.MouseEvent<HTMLAnchorElement>) => {
-        e.preventDefault()
-        setIsLoading(true)
-        router.push(`/blog/${post.slug}`)
-    }
+        e.preventDefault();
+        setIsLoading(true);
+        router.push(`/blog/${post.slug}`);
+    };
+
+    if (!post) return null; // Early return if post is not available
 
     return (
         <motion.article
@@ -66,7 +67,7 @@ export default function BlogCard({ post, index }: BlogCardProps) {
 
                 {/* Post Metadata */}
                 <div className="flex items-center text-sm text-gray-500 gap-4">
-                    <span>{post.author.name}</span>
+                    <span>{post.author?.name || "Unknown"}</span>
                     <span>•</span>
                     <span>{new Date(post.createdAt).toLocaleDateString('ar-SA')}</span>
                     {post.signedWithGPG ? (
@@ -90,7 +91,7 @@ export default function BlogCard({ post, index }: BlogCardProps) {
                 </div>
 
                 {/* Categories */}
-                {post.categories.length > 0 && (
+                {post.categories && post.categories.length > 0 && (
                     <div className="flex gap-2 mt-3">
                         {post.categories.map(category => (
                             <span
@@ -104,5 +105,5 @@ export default function BlogCard({ post, index }: BlogCardProps) {
                 )}
             </Link>
         </motion.article>
-    )
+    );
 }

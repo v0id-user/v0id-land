@@ -54,8 +54,18 @@ export async function publishPost(formData: CreatePostFormData) {
             }
         },
         include: {
-            categories: true,
-            author: true
+            categories: {
+                select: {
+                    id: true,
+                    name: true
+                }
+            },
+            author: {
+                select: {
+                    id: true,
+                    name: true
+                }
+            }
         }
     })
 

@@ -1,16 +1,11 @@
 "use client"
 
-import { Post, User } from "@prisma/client";
 import { getPostPublished } from "@/lib/client/blog";
 import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
 import Loader from "@/components/Loader";
 import { setCache, getCache } from "@/lib/client/cache"; // Import cache functions
-
-interface ExtendedPost extends Post {
-    author: User;
-    categories: { name: string }[];
-}
+import { ExtendedPost } from "@/interfaces/blog";
 
 type Props = {
     params: Promise<{ id: string }>

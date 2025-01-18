@@ -1,4 +1,5 @@
-import { PostStatus, Category } from "@prisma/client"
+import { PostStatus, Category, Post } from "@prisma/client"
+import { SafeUser } from "../user"
 
 export interface BlogPostRequest {
     id?: string
@@ -24,6 +25,10 @@ export interface BlogPostResponse {
     workbar: boolean
 }
 
+export interface ExtendedPost extends Post {
+    author: SafeUser;
+    categories: { name: string }[];
+}
 
 export interface BlogCard {
     id: string

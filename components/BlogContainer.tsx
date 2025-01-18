@@ -1,5 +1,4 @@
 import { Badge } from "@/components/ui/badge";
-import { Post, User } from "@prisma/client";
 import WorkBar from "./WorkBar";
 import { Shield, ShieldCheck } from "lucide-react";
 import Link from "next/link";
@@ -7,11 +6,7 @@ import BlogContent from "@/components/BlogContent";
 import { getSpacerToken } from "@/lib/token";
 import Footer from "@/components/Footer";
 import ScrollToTop from "@/components/ScrollToTop";
-
-interface ExtendedPost extends Post {
-    author: User;
-    categories: { name: string }[];
-}
+import { ExtendedPost } from "@/interfaces/blog";
 
 export default async function BlogContainer({ post }: { post: ExtendedPost }) {
     const spacer = await getSpacerToken()

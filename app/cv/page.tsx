@@ -152,7 +152,7 @@ export default function CV() {
                 <br />
                 <hr className="my-2 w-full border-gray-300" />
                 <p>Visit my website:</p>
-                <Link href="/" className="text-blue-500 underline">Visit Website</Link>
+                <Link href="https://v0id.me" className="text-blue-500 underline">v0id.me</Link>
                 <br />
                 <p className="text-gray-600 text-xs">copyright © {new Date().getFullYear()} #V0ID</p>
             </div>
