@@ -1,6 +1,6 @@
 'use client'
 
-import { useEditor, EditorContent, BubbleMenu } from '@tiptap/react'
+import { useEditor, EditorContent, BubbleMenu, Editor } from '@tiptap/react'
 import StarterKit from '@tiptap/starter-kit'
 import Image from '@tiptap/extension-image'
 import Link from '@tiptap/extension-link'
@@ -8,6 +8,99 @@ import { useCallback, useRef, useEffect, useState } from 'react'
 import { Bold, Italic, Heading2, List, ListOrdered, Image as ImageIcon, Link as LinkIcon, Code, Quote } from 'lucide-react'
 import toast from 'react-hot-toast'
 import { useBlogFormStore } from '@/state/blog/form'
+import { getPresignedUrl, uploadFile } from '@/lib/client/blog'
+
+const EditorFloatingBubbleMenu = ({ editor }: { editor: Editor }) => {
+    return (
+        <BubbleMenu
+            editor={editor}
+            tippyOptions={{
+                duration: 100,
+                appendTo: document.body,
+                interactive: true,
+            }}
+            className="bg-white shadow-lg rounded-lg border border-gray-200 flex overflow-hidden"
+        >
+            <button
+                onClick={() => editor.chain().focus().toggleBold().run()}
+                className={`p-2 hover:bg-gray-100 transition-colors ${editor.isActive('bold') ? 'bg-gray-100' : ''}`}
+            >
+                <Bold className="w-4 h-4" />
+            </button>
+            <button
+                onClick={() => editor.chain().focus().toggleItalic().run()}
+                className={`p-2 hover:bg-gray-100 transition-colors ${editor.isActive('italic') ? 'bg-gray-100' : ''}`}
+            >
+                <Italic className="w-4 h-4" />
+            </button>
+            <button
+                onClick={() => editor.chain().focus().toggleHeading({ level: 2 }).run()}
+                className={`p-2 hover:bg-gray-100 transition-colors ${editor.isActive('heading', { level: 2 }) ? 'bg-gray-100' : ''}`}
+            >
+                <Heading2 className="w-4 h-4" />
+            </button>
+            <button
+                onClick={() => {
+                    const url = window.prompt('أدخل الرابط')
+                    if (url) {
+                        editor.chain().focus().toggleLink({ href: url }).run()
+                    }
+                }}
+                className={`p-2 hover:bg-gray-100 transition-colors ${editor.isActive('link') ? 'bg-gray-100' : ''}`}
+            >
+                <LinkIcon className="w-4 h-4" />
+            </button>
+        </BubbleMenu>
+    )
+}
+
+const EditorSideToolbar = ({ editor, addImage }: { editor: Editor, addImage: () => void }) => {
+    return (
+        <div className="absolute left-0 top-8 -ml-12 flex flex-col gap-2 bg-white rounded-lg">
+            <button
+                type="button" // Prevent form submission
+                onClick={addImage}
+                className="p-2 rounded-lg hover:bg-gray-100 transition-colors border border-gray-200 bg-white"
+                title="إضافة صورة"
+            >
+                <ImageIcon className="w-4 h-4" />
+            </button>
+            <button
+                type="button" // Prevent form submission
+                onClick={() => editor.chain().focus().toggleBulletList().run()}
+                className={`p-2 rounded-lg hover:bg-gray-100 transition-colors border border-gray-200 bg-white ${editor.isActive('bulletList') ? 'bg-gray-100' : ''}`}
+                title="قائمة نقطية"
+            >
+                <List className="w-4 h-4" />
+            </button>
+            <button
+                type="button" // Prevent form submission
+                onClick={() => editor.chain().focus().toggleOrderedList().run()}
+                className={`p-2 rounded-lg hover:bg-gray-100 transition-colors border border-gray-200 bg-white ${editor.isActive('orderedList') ? 'bg-gray-100' : ''}`}
+                title="قائمة رقمية"
+            >
+                <ListOrdered className="w-4 h-4" />
+            </button>
+            <button
+                type="button" // Prevent form submission
+                onClick={() => editor.chain().focus().toggleCodeBlock().run()}
+                className={`p-2 rounded-lg hover:bg-gray-100 transition-colors border border-gray-200 bg-white ${editor.isActive('codeBlock') ? 'bg-gray-100' : ''}`}
+                title="كود"
+            >
+                <Code className="w-4 h-4" />
+            </button>
+            <button
+                type="button" // Prevent form submission
+                onClick={() => editor.chain().focus().toggleBlockquote().run()}
+                className={`p-2 rounded-lg hover:bg-gray-100 transition-colors border border-gray-200 bg-white ${editor.isActive('blockquote') ? 'bg-gray-100' : ''}`}
+                title="اقتباس"
+            >
+                <Quote className="w-4 h-4" />
+            </button>
+        </div>
+    )
+}
+
 
 export default function BlogEditor() {
     const fileInputRef = useRef<HTMLInputElement>(null)
@@ -73,6 +166,7 @@ export default function BlogEditor() {
             handlePaste: (view, event) => {
                 // Handle image paste
                 if (event.clipboardData && event.clipboardData.files && event.clipboardData.files[0]) {
+                    console.log('Image paste detected')
                     const file = event.clipboardData.files[0]
                     if (!file.type.startsWith('image/')) {
                         return false
@@ -81,15 +175,25 @@ export default function BlogEditor() {
                     return true
                 }
 
-                // Handle text paste
-                setTimeout(() => {
-                    const content = editor?.getHTML();
-                    if (content && content !== lastContentRef.current) {
-                        lastContentRef.current = content
-                        store.setContent(content)
-                    }
-                }, 10);
+                if (event.clipboardData && event.clipboardData.getData('text')) {
+                    console.log('Text paste detected')
+                    //Get the text from the clipboard
+                    const contentPasted = event.clipboardData.getData('text')
 
+                    //Get the current content
+                    const currentContent = store.getContent()
+
+                    //Append the new content to the current content
+                    const fullContent = currentContent + contentPasted
+
+                    //Update the last content reference
+                    //This will automatically format the content
+                    lastContentRef.current = fullContent
+
+                    //Update the content in the store
+                    store.setContent(lastContentRef.current)
+                    return true
+                }
                 return false
             },
         },
@@ -103,6 +207,8 @@ export default function BlogEditor() {
     }, []) // Add empty dependency array to avoid re-renders
 
     useEffect(() => {
+        // TODO: Make it sync with local first approach
+        // TODO: Interface should be easy as we only going to use the form state and the id generated by the server
         setIsMounted(true)
     }, [])
 
@@ -114,104 +220,87 @@ export default function BlogEditor() {
     }, [editor, store.content])
 
     const handleImageUpload = async (file: File) => {
-        let lastImagePos: number | null = null;
+        let insertedPos: number | null = null;
 
         try {
-            // Show preview immediately
-            const reader = new FileReader()
-            reader.onload = (e) => {
-                if (editor && e.target?.result) {
-                    // Store the position before inserting
-                    lastImagePos = editor.state.selection.from;
-                    editor.chain().focus().setImage({ src: e.target.result as string }).run()
-                }
-            }
-            reader.readAsDataURL(file)
-
-            // Calculate SHA-256 hash of file
-            const arrayBuffer = await file.arrayBuffer();
-            const hashBuffer = await crypto.subtle.digest('SHA-256', arrayBuffer);
-            const hashArray = Array.from(new Uint8Array(hashBuffer));
-            const hash = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
-
-            // Get presigned URL from our API
-            const response = await fetch('/api/s3/presign', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    filename: file.name,
-                    contentType: file.type,
-                    fileSize: file.size,
-                    hash: hash,
-                }),
-            });
-
-            if (!response.ok) {
-                throw new Error('Failed to get presigned URL');
-            }
-
-            const data = await response.json();
-
-            // If file already exists, just use the public URL
-            if (data.exists) {
-                if (editor) {
-                    let lastImage = null
-                    editor.state.doc.descendants((node) => {
-                        if (node.type.name === 'image') {
-                            lastImage = node
-                        }
-                        return false
-                    })
-                    
-                    if (lastImage) {
-                        editor.chain().focus().setImage({ src: data.publicUrl }).run()
-                    }
-                }
-                toast.success('تم استخدام الصورة الموجودة')
+            if (!editor) {
                 return;
             }
 
-            // Upload to S3 using presigned URL
-            const uploadResponse = await fetch(data.presignedUrl, {
-                method: 'PUT',
-                body: file,
-                headers: {
-                    'Content-Type': file.type,
-                },
-            });
-
-            if (!uploadResponse.ok) {
-                throw new Error('Failed to upload to S3');
+            // Validate file type and size
+            if (!file.type.startsWith('image/')) {
+                throw new Error('Invalid file type');
             }
 
-            // Replace the base64 preview with the actual S3 URL
-            if (editor) {
-                let lastImage = null
-                editor.state.doc.descendants((node) => {
-                    if (node.type.name === 'image') {
-                        lastImage = node
-                    }
-                    return false
-                })
-                
-                if (lastImage) {
-                    editor.chain().focus().setImage({ src: data.publicUrl }).run()
+            const MAX_SIZE = 5 * 1024 * 1024; // 5MB
+            if (file.size > MAX_SIZE) {
+                throw new Error('File size too large');
+            }
+
+            // Show preview immediately using FileReader
+            const previewUrl = await new Promise<string>((resolve, reject) => {
+                const reader = new FileReader();
+                reader.onload = (e) => resolve(e.target?.result as string);
+                reader.onerror = (e) => reject(e);
+                reader.readAsDataURL(file);
+            });
+
+            if (!previewUrl) {
+                throw new Error('Failed to get preview URL');
+            }
+
+            // Insert preview image and store its position
+            const { state } = editor;
+            insertedPos = state.selection.from;
+            editor.chain().focus().setImage({ src: previewUrl }).run();
+
+            // Get presigned URL and upload
+            const url = await getPresignedUrl(file);
+            if (!url?.publicUrl) {
+                throw new Error('Failed to get presigned URL');
+            }
+
+            // Upload the file if we have a presigned URL
+            if (url.presignedUrl) {
+                const uploadResponse = await uploadFile(file, url.presignedUrl);
+                if (!uploadResponse) {
+                    throw new Error('Failed to upload to S3');
                 }
             }
 
-            toast.success('تم رفع الصورة بنجاح')
+            // Find and replace the preview image with the uploaded one
+            editor.view.state.doc.nodesBetween(0, editor.view.state.doc.content.size, (node, pos) => {
+                if (node.type.name === 'image' && node.attrs.src === previewUrl) {
+                    editor.chain()
+                        .setNodeSelection(pos)
+                        .deleteSelection()
+                        .setImage({ src: url.publicUrl })
+                        .run();
+                    return false;
+                }
+            });
+
+            toast.success('تم وضع الصورة بنجاح');
+
         } catch (error) {
-            console.error('Error uploading image:', error)
-            // Remove the image if upload failed
-            if (editor && lastImagePos !== null) {
-                editor.commands.deleteRange({
-                    from: lastImagePos,
-                    to: lastImagePos + 1
-                })
+            console.error('Error uploading image:', error);
+            
+            // Clean up preview image if it exists
+            if (editor && insertedPos !== null) {
+                editor.view.state.doc.nodesBetween(0, editor.view.state.doc.content.size, (node, pos) => {
+                    if (node.type.name === 'image' && pos >= insertedPos!) {
+                        editor.chain()
+                            .setNodeSelection(pos)
+                            .deleteSelection()
+                            .run();
+                        return false;
+                    }
+                });
             }
-            toast.error('حدث خطأ أثناء رفع الصورة')
+
+            // Show appropriate error message
+            const errorMessage = error instanceof Error ? error.message : 'حدث خطأ أثناء رفع الصورة';
+            toast.error(errorMessage);
         }
     }
 
@@ -226,84 +315,10 @@ export default function BlogEditor() {
     return (
         <div className="relative">
             {/* Floating Toolbar */}
-            <BubbleMenu 
-                editor={editor} 
-                tippyOptions={{ 
-                    duration: 100,
-                    appendTo: document.body,
-                    interactive: true,
-                }} 
-                className="bg-white shadow-lg rounded-lg border border-gray-200 flex overflow-hidden"
-            >
-                <button
-                    onClick={() => editor.chain().focus().toggleBold().run()}
-                    className={`p-2 hover:bg-gray-100 transition-colors ${editor.isActive('bold') ? 'bg-gray-100' : ''}`}
-                >
-                    <Bold className="w-4 h-4" />
-                </button>
-                <button
-                    onClick={() => editor.chain().focus().toggleItalic().run()}
-                    className={`p-2 hover:bg-gray-100 transition-colors ${editor.isActive('italic') ? 'bg-gray-100' : ''}`}
-                >
-                    <Italic className="w-4 h-4" />
-                </button>
-                <button
-                    onClick={() => editor.chain().focus().toggleHeading({ level: 2 }).run()}
-                    className={`p-2 hover:bg-gray-100 transition-colors ${editor.isActive('heading', { level: 2 }) ? 'bg-gray-100' : ''}`}
-                >
-                    <Heading2 className="w-4 h-4" />
-                </button>
-                <button
-                    onClick={() => {
-                        const url = window.prompt('أدخل الرابط')
-                        if (url) {
-                            editor.chain().focus().toggleLink({ href: url }).run()
-                        }
-                    }}
-                    className={`p-2 hover:bg-gray-100 transition-colors ${editor.isActive('link') ? 'bg-gray-100' : ''}`}
-                >
-                    <LinkIcon className="w-4 h-4" />
-                </button>
-            </BubbleMenu>
+            <EditorFloatingBubbleMenu editor={editor} />
 
             {/* Side Toolbar */}
-            <div className="absolute left-0 top-8 -ml-12 flex flex-col gap-2 bg-white rounded-lg">
-                <button
-                    onClick={addImage}
-                    className="p-2 rounded-lg hover:bg-gray-100 transition-colors border border-gray-200 bg-white"
-                    title="إضافة صورة"
-                >
-                    <ImageIcon className="w-4 h-4" />
-                </button>
-                <button
-                    onClick={() => editor.chain().focus().toggleBulletList().run()}
-                    className={`p-2 rounded-lg hover:bg-gray-100 transition-colors border border-gray-200 bg-white ${editor.isActive('bulletList') ? 'bg-gray-100' : ''}`}
-                    title="قائمة نقطية"
-                >
-                    <List className="w-4 h-4" />
-                </button>
-                <button
-                    onClick={() => editor.chain().focus().toggleOrderedList().run()}
-                    className={`p-2 rounded-lg hover:bg-gray-100 transition-colors border border-gray-200 bg-white ${editor.isActive('orderedList') ? 'bg-gray-100' : ''}`}
-                    title="قائمة رقمية"
-                >
-                    <ListOrdered className="w-4 h-4" />
-                </button>
-                <button
-                    onClick={() => editor.chain().focus().toggleCodeBlock().run()}
-                    className={`p-2 rounded-lg hover:bg-gray-100 transition-colors border border-gray-200 bg-white ${editor.isActive('codeBlock') ? 'bg-gray-100' : ''}`}
-                    title="كود"
-                >
-                    <Code className="w-4 h-4" />
-                </button>
-                <button
-                    onClick={() => editor.chain().focus().toggleBlockquote().run()}
-                    className={`p-2 rounded-lg hover:bg-gray-100 transition-colors border border-gray-200 bg-white ${editor.isActive('blockquote') ? 'bg-gray-100' : ''}`}
-                    title="اقتباس"
-                >
-                    <Quote className="w-4 h-4" />
-                </button>
-            </div>
+            <EditorSideToolbar editor={editor} addImage={addImage} />
 
             {/* Hidden file input */}
             <input
@@ -321,19 +336,19 @@ export default function BlogEditor() {
             />
 
             <div className="relative bg-white rounded-lg">
-                <EditorContent 
-                    editor={editor} 
+                <EditorContent
+                    editor={editor}
                 />
-                <div className="absolute inset-0 pointer-events-none border-2 border-dashed border-transparent transition-colors duration-200 rounded-lg" 
-                    style={{ 
+                <div className="absolute inset-0 pointer-events-none border-2 border-dashed border-transparent transition-colors duration-200 rounded-lg"
+                    style={{
                         borderColor: 'var(--drag-color, transparent)',
-                    }} 
+                    }}
                 />
             </div>
 
-            <input 
-                type="hidden" 
-                name="content" 
+            <input
+                type="hidden"
+                name="content"
                 value={editor.getHTML()}
             />
 

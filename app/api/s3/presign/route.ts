@@ -2,7 +2,9 @@ import { getSpacerToken } from "@/lib/token";
 import { S3Client, PutObjectCommand, HeadObjectCommand } from "@aws-sdk/client-s3";
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 import { NextResponse } from "next/server";
+import { BlogPresignedUrlRequest, BlogPresignedUrlResponse } from "@/interfaces/blog";
 export const maxDuration = 30;
+
 // Initialize S3 client with standard AWS configuration
 const s3Client = new S3Client({
     region: process.env.AWS_REGION || 'auto',
@@ -34,23 +36,23 @@ export async function POST(request: Request) {
             return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
         }
 
-        const { filename, contentType, fileSize, hash } = await request.json();
+        const presignedUrlRequest = await request.json() as BlogPresignedUrlRequest | null;
         
         // Validate required fields
-        if (!filename || !contentType || !fileSize || !hash) {
+        if (!presignedUrlRequest?.filename || !presignedUrlRequest?.contentType || !presignedUrlRequest?.fileSize || !presignedUrlRequest?.hash) {
             return NextResponse.json({ 
                 error: "Missing required fields: filename, contentType, fileSize, or hash" 
             }, { status: 400 });
         }
 
         // Security checks
-        if (!ALLOWED_MIME_TYPES.includes(contentType)) {
+        if (!ALLOWED_MIME_TYPES.includes(presignedUrlRequest.contentType)) {
             return NextResponse.json({ 
                 error: "File type not allowed" 
             }, { status: 400 });
         }
 
-        if (fileSize > MAX_FILE_SIZE) {
+        if (presignedUrlRequest.fileSize > MAX_FILE_SIZE) {
             return NextResponse.json({ 
                 error: "File size exceeds maximum allowed size of 5MB" 
             }, { status: 400 });
@@ -61,9 +63,9 @@ export async function POST(request: Request) {
         }
 
         // Extract file extension
-        const fileExtension = filename.split('.').pop()?.toLowerCase() || '';
+        const fileExtension = presignedUrlRequest.filename.split('.').pop()?.toLowerCase() || '';
         // Generate key based on hash and original extension
-        const key = `uploads/${hash}.${fileExtension}`;
+        const key = `uploads/${presignedUrlRequest.hash}.${fileExtension}`;
 
         try {
             // Check if file already exists
@@ -77,22 +79,21 @@ export async function POST(request: Request) {
             // File exists, return the public URL without generating a new presigned URL
             const publicUrl = `${process.env.STORAGE_DOMAIN}/${key}`;
             
-            return NextResponse.json({ 
-                exists: true,
-                publicUrl,
-                key
-            });
+            const response: BlogPresignedUrlResponse = {
+                publicUrl
+            }
+            return NextResponse.json(response);
         } catch (error) {
             // File doesn't exist, generate presigned URL for upload
             if (error instanceof Error && 'name' in error && error.name === 'NotFound') {
                 const command = new PutObjectCommand({
                     Bucket: process.env.AWS_BUCKET_NAME,
                     Key: key,
-                    ContentType: contentType,
+                    ContentType: presignedUrlRequest.contentType,
                     CacheControl: 'public, max-age=31536000',
                     Metadata: {
-                        'original-filename': filename,
-                        'content-hash': hash,
+                        'original-filename': presignedUrlRequest.filename,
+                        'content-hash': presignedUrlRequest.hash,
                         'upload-date': new Date().toISOString(),
                     }
                 });
@@ -102,14 +103,11 @@ export async function POST(request: Request) {
                 });
 
                 const publicUrl = `${process.env.STORAGE_DOMAIN}/${key}`;
-
-                return NextResponse.json({ 
-                    exists: false,
-                    presignedUrl, 
+                const response: BlogPresignedUrlResponse = {
                     publicUrl,
-                    expiresIn: 600,
-                    key
-                });
+                    presignedUrl
+                }
+                return NextResponse.json(response);
             }
             throw error;
         }

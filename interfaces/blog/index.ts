@@ -47,3 +47,15 @@ export interface BlogCard {
 export interface BlogsResponse {
     post: BlogCard
 }
+
+export interface BlogPresignedUrlResponse {
+    publicUrl: string
+    presignedUrl?: string
+}
+
+export interface BlogPresignedUrlRequest {
+    filename: string
+    contentType: string
+    fileSize: number
+    hash: string
+}

@@ -106,6 +106,13 @@ export const projects: Project[] = [
         githubUrl: "https://github.com/v0id-user/DFTP"
     },
     {
+        name: "PMPS",
+        date: "May 2024",
+        description: "C/C++ library and tool for scanning a process's memory space on Windows to find regex string patterns.",
+        technologies: ["C", "Windows API", "Regex", "Memory Scanning"],
+        githubUrl: "https://github.com/GhaynOrg/PMPS"
+    },
+    {
         name: "Postgres-Reactive-SSE-Example",
         date: "December 2024",
         description: "Developed a real-time newsletter application that uses PostgreSQL's NOTIFY/LISTEN functionality with Server-Sent Events (SSE) for reactive updates.",
@@ -118,5 +125,12 @@ export const projects: Project[] = [
         description: "Experimented with implementing asynchronous functionality in C, exploring low-level concurrency concepts.",
         technologies: ["C", "Asynchronous Programming"],
         githubUrl: "https://github.com/v0id-user/CAsyncPolling"
+    },
+    {
+        name: "v0id-land",
+        date: "January 2025",
+        description: "My personal website, where I integrated my own blog system, portfolio, and other projects in it.",
+        technologies: ["Next.js", "Tailwind CSS", "PostgreSQL", "Prisma", "S3", "Shadcn/UI"],
+        githubUrl: "https://github.com/v0id-user/v0id-land"
     }
 ];

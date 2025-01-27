@@ -214,6 +214,8 @@ export async function initBlogPostDraft(data: BlogPostRequest): Promise<Post> {
 }
 
 export async function updateBlogPostDraftUnpublished(data: DraftUpdateData, post: Post): Promise<Post> {
+    const startTime = Date.now(); // Start performance logging
+    console.profile('updateBlogPostDraftUnpublished')
     // Create or get existing categories
     const normalizedCategories = data.categories ? [...new Set(data.categories.map(cat => cat.toLowerCase()))] : [];
     
@@ -245,6 +247,9 @@ export async function updateBlogPostDraftUnpublished(data: DraftUpdateData, post
         }
     });
 
+    const endTime = Date.now(); // End performance logging
+    console.log(`Performance Log: Category upsert and post update took ${endTime - startTime} ms`);
+    console.profileEnd('updateBlogPostDraftUnpublished')
     // Invalidate caches
     await invalidatePostCache(updatedPost);
 

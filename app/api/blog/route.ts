@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import { getPostPublished, getPublishedPosts } from '@/lib/blog';
-export const maxDuration = 30;
 
+export const maxDuration = 30;
 
 export async function GET(request: Request) {
     try {

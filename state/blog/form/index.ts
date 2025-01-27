@@ -23,6 +23,7 @@ interface BlogFormStore extends FormState {
     setStatus: (status: PostStatus) => void;
     setTitle: (title: string) => void;
     setContent: (content: string) => void;
+    getContent: () => string;
     setCategories: (categories: string[]) => void;
     setCategoryInput: (input: string) => void;
     setSignedWithGPG: (signed: boolean) => void;
@@ -31,7 +32,6 @@ interface BlogFormStore extends FormState {
     addCategory: (category: string) => void;
     removeCategory: (category: string) => void;
     setState: (state: Partial<FormState>) => void;
-    saveDraft: () => Promise<void>;
     debouncedSaveDraft: () => void;
 }
 
@@ -102,6 +102,8 @@ export const useBlogFormStore = create<BlogFormStore>((set, get) => {
             debouncedSave()
         },
 
+        getContent: () => get().content,
+
         setCategories: (categories: string[]) => {
             set({
                 categories,
@@ -160,37 +162,7 @@ export const useBlogFormStore = create<BlogFormStore>((set, get) => {
             })
             debouncedSave()
         },
-
-        saveDraft: async () => {
-            const state = get()
-            if (!state.isDirty) return
-
-            try {
-                set({ textStatus: 'جاري الحفظ' })
-                const response = await updateDraft(state)
-
-                if (!response) {
-                    set({ textStatus: 'فشل في الحفظ' })
-                    return
-                }
-
-                set({
-                    textStatus: 'تم الحفظ',
-                    lastSavedContent: state.content,
-                    isDirty: false
-                })
-
-                setTimeout(() => {
-                    if (!get().isDirty) {
-                        set({ textStatus: 'لايوجد تغييرات' })
-                    }
-                }, 3000)
-            } catch (error) {
-                console.error('Error saving draft:', error)
-                set({ textStatus: 'فشل في الحفظ' })
-            }
-        },
-
+      
         debouncedSaveDraft: () => {
             debouncedSave()
         }

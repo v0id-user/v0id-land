@@ -4,7 +4,7 @@ import dynamic from 'next/dynamic'
 import { publishPost, unpublishPost } from '@/app/space/creation/actions'
 import { Lock, LayoutPanelTop, X } from 'lucide-react'
 import Link from 'next/link'
-import { useEffect, useRef } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import toast from 'react-hot-toast'
 import { SpacerTokenPayload } from '@/lib/token'
 import { CreatePostFormData } from '@/app/space/creation/actions'
@@ -12,6 +12,7 @@ import { PostStatus } from '@prisma/client'
 import { Badge } from './ui/badge'
 import { useBlogFormStore } from '@/state/blog/form'
 import { getDraft } from '@/lib/client/blog/draft'
+import Loader from '@/components/Loader'
 
 const BlogEditor = dynamic(() => import('./BlogEditor'), {
     ssr: false,
@@ -28,7 +29,8 @@ export default function BlogEditorForm({ spacerData, id }: BlogEditorFormProps) 
     const idRef = useRef(id);
     const spacerDataIdRef = useRef(spacerData.id);
     const storeRef = useRef(store);
-
+    const [isLoading, setIsLoading] = useState(false);
+    
     useEffect(() => {
         idRef.current = id;
         spacerDataIdRef.current = spacerData.id;
@@ -37,7 +39,6 @@ export default function BlogEditorForm({ spacerData, id }: BlogEditorFormProps) 
 
     const handleTitleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         store.setTitle(e.target.value)
-        store.debouncedSaveDraft()
     }
 
     const handleCategoryInput = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -134,6 +135,7 @@ export default function BlogEditorForm({ spacerData, id }: BlogEditorFormProps) 
 
     useEffect(() => {
         const fetchDraft = async () => {
+            setIsLoading(true)
             const draft = await getDraft(idRef.current)
 
             if (!draft) {
@@ -144,6 +146,7 @@ export default function BlogEditorForm({ spacerData, id }: BlogEditorFormProps) 
                 }, 2000)
                 return
             }
+            setIsLoading(false)
 
             const categories = draft.categories?.map(cat => cat.name.toLowerCase()) ?? []
 
@@ -162,10 +165,23 @@ export default function BlogEditorForm({ spacerData, id }: BlogEditorFormProps) 
         fetchDraft()
     }, []);
 
+    if (isLoading) {
+        return (
+            <div className="flex items-center justify-center min-h-screen bg-white">
+                <Loader />
+            </div>
+        )
+    }
+
     return (
         <div className="min-h-screen bg-white">
             <form
-                action={handleSubmit}
+                onSubmit={(event: React.FormEvent<HTMLFormElement>) => {
+                    // Prevent the default form submission
+                    // Key short-cuts 
+                    event.preventDefault();
+                    handleSubmit();
+                }}
                 className="w-full mx-auto px-10"
                 onKeyDown={(e) => {
                     if (e.key === 'Enter' && (e.metaKey || e.ctrlKey)) {
@@ -203,7 +219,6 @@ export default function BlogEditorForm({ spacerData, id }: BlogEditorFormProps) 
                                             checked={store.signedWithGPG}
                                             onChange={(e) => {
                                                 store.setSignedWithGPG(e.target.checked)
-                                                store.debouncedSaveDraft()
                                             }}
                                             className="sr-only peer"
                                         />
@@ -224,7 +239,6 @@ export default function BlogEditorForm({ spacerData, id }: BlogEditorFormProps) 
                                             checked={store.workbar}
                                             onChange={(e) => {
                                                 store.setWorkbar(e.target.checked)
-                                                store.debouncedSaveDraft()
                                             }}
                                             className="sr-only peer"
                                         />
