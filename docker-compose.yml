@@ -1,7 +1,7 @@
 version: "3.8"
 
 services:
-  app:
+  land_app:
     build:
       context: .  # The directory with your Dockerfile
       dockerfile: Dockerfile
@@ -9,3 +9,19 @@ services:
       - "3000:3000" # Map container port 3000 to host port 3000
     env_file:
       - .env       # Load environment variables from .env
+
+  postgres:
+    image: postgres:latest
+    restart: always
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: your_postgres_password
+      POSTGRES_DB: land
+    ports:
+      - "5432:5432" # Map container port 5432 to host port 5432
+
+  redis:
+    image: redis:latest
+    restart: always
+    ports:
+      - "6379:6379" # Map container port 6379 to host port 6379
