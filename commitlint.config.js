@@ -15,7 +15,9 @@ module.exports = {
         'refactor',
         'revert',
         'style',
-        'test'
+        'test',
+        'deploy',
+        'docker'
       ]
     ],
     'type-case': [2, 'always', 'lower-case'],
