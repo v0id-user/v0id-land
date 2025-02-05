@@ -32,7 +32,7 @@
 - **Frontend**: Next.js, React, TailwindCSS
 - **Backend**: Next.js API Routes
 - **Database**: PostgreSQL
-- **Caching**: Redis
+- ~~**Caching**: Redis~~ (Not implemented yet)
 - **Storage**: S3-compatible Storage (Tigris)
 - **Security**: GPG for Blog Verification
 - **Runtime**: Bun
@@ -41,7 +41,7 @@
 Before you begin, ensure you have the following:
 - Node.js and npm (or Bun)
 - PostgreSQL database
-- Redis server
+- ~~Redis server~~ (Not required yet)
 - S3-compatible storage (like Tigris)
 - GPG key pair for blog verification
 

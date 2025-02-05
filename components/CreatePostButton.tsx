@@ -13,11 +13,14 @@ export default function CreatePostButton({ authorId }: CreatePostButtonProps) {
 
     const handleClick = async () => {
         try {
+            // Create a unique random slug for the post to it's not duplicated with blank
+            const slug = Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
+
             const postData: BlogPostRequest = {
                 author: authorId,
                 title: '',
                 content: '',
-                slug: '',
+                slug: slug,
                 categories: [],
                 signedWithGPG: false,
                 includeWorkbar: false,

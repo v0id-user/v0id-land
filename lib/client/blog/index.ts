@@ -3,7 +3,6 @@
 */
 import { BlogPostResponse, BlogsResponse, BlogCard, BlogPresignedUrlResponse, BlogPresignedUrlRequest } from "@/interfaces/blog"
 import { apiClient } from "@/lib/client"
-import { AxiosResponse } from "axios";
 import axios from "axios"
 
 export async function getPostPublished(id: string): Promise<BlogPostResponse | null> {
