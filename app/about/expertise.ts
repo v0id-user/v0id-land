@@ -36,12 +36,6 @@ export const languages: TechInfo[] = [
         description: "لغتي الأساسية لكل ما يتعلق بالـ UI/UX وتطوير الواجهات، defacto-standard للـ frontend development",
         color: "bg-blue-600"
     },
-    {
-        name: "PHP",
-        url: "https://www.php.net",
-        description: "كلاسيكيتك المفضلة للـ Backend في تطوير تطبيقات الويب، بداية الرحلة كانت معها! استخدمها في الـ Laravel بشكل أساسي.",
-        color: "bg-purple-900"
-    }
 ];
 
 export const libraries: TechInfo[] = [
@@ -67,8 +61,8 @@ export const frameworks: TechInfo[] = [
         color: "bg-black"
     },
     {
-        name: "Laravel",
-        url: "https://laravel.com",
+        name: "Django",
+        url: "https://www.djangoproject.com",
         description: "إطار عمل مثالي للمشاريع على مستوى enterprise، أستخدمه عندما أحتاج هيكلة قوية وopinionated architecture",
         color: "bg-red-600"
     },
