@@ -64,7 +64,7 @@ export const frameworks: TechInfo[] = [
         name: "Django",
         url: "https://www.djangoproject.com",
         description: "إطار عمل مثالي للمشاريع على مستوى enterprise، أستخدمه عندما أحتاج هيكلة قوية وopinionated architecture",
-        color: "bg-red-600"
+        color: "bg-[#0C4B33]"
     },
     {
         name: "Gin",
