@@ -1,7 +1,14 @@
+'use client';
+
 import { motion } from "motion/react";
+import { useEffect, useState } from "react";
 
 export default function Footer() {
-    const year = new Date().getFullYear();
+    const [year, setYear] = useState<number>();
+
+    useEffect(() => {
+        setYear(new Date().getFullYear());
+    }, []);
 
     return (
         <div className="flex flex-col gap-2 items-center justify-center w-full">
