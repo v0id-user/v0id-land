@@ -3,6 +3,7 @@ import { Post, User } from "@prisma/client";
 import { getPostPublishedBySlug } from "@/lib/blog";
 import Link from "next/link";
 import type { Metadata } from 'next';
+import { generatePostMetadata } from "@/lib/utils/metadata";
 
 interface ExtendedPost extends Post {
     author: User;
@@ -20,10 +21,18 @@ export async function generateMetadata(
     const slug = (await params).slug;
     const post = await getPostPublishedBySlug(slug) as ExtendedPost | null;
 
-    return {
-        title: post?.title || 'Post Not Found',
-        description: post?.content?.substring(0, 160) || 'Blog post not found',
-    };
+    if (!post || !post.title) {
+        return {
+            title: 'لم يتم العثور على المنشور',
+            description: 'لم يتم العثور على المنشور',
+        };
+    }
+
+    return generatePostMetadata({
+        title: post.title,
+        content: post.content,
+        author: post.author
+    });
 }
 
 export default async function Blog({ params }: Props) {
@@ -45,7 +54,7 @@ export default async function Blog({ params }: Props) {
                         {post ? (
                             <BlogContainer post={post} />
                         ) : (
-                            <p>Post not found.</p>
+                            <p>لم يتم العثور على المنشور.</p>
                         )}
                     </div>
                 </div>

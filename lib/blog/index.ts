@@ -2,7 +2,7 @@ import 'server-only'
 import { BlogPostRequest, BlogPostResponse, BlogsResponse } from "@/interfaces/blog"
 import { Post, PostStatus } from "@prisma/client"
 import prisma from "@/lib/prisma"
-import { getBlogPostByIdCache, setBlogPostByIdCache, getBlogListCache, setBlogListCache, getBlogPostCache, setBlogPostCache, invalidatePostCache, toPostWithSafeAuthor } from "@/lib/cache/blog/server"
+import { getBlogPostByIdCache, setBlogPostByIdCache, getBlogListCache, setBlogListCache, setBlogPostCache, invalidatePostCache, toPostWithSafeAuthor } from "@/lib/cache/blog/server"
 
 interface DraftUpdateData {
     title?: string;
@@ -16,7 +16,12 @@ export async function getPostNoCache(id: string): Promise<Post | null> {
     const post = await prisma.post.findUnique({
         where: { id },
         include: {
-            categories: true,
+            categories: {
+                select: {
+                    id: true,
+                    name: true
+                }
+            },
             author: {
                 select: {
                     id: true,
@@ -38,7 +43,12 @@ export async function getPost(id: string): Promise<Post | null> {
     const post = await prisma.post.findUnique({
         where: { id },
         include: {
-            categories: true,
+            categories: {
+                select: {
+                    id: true,
+                    name: true
+                }
+            },
             author: {
                 select: {
                     id: true,
@@ -73,7 +83,12 @@ export async function getPublishedPosts(): Promise<BlogsResponse[]> {
                     name: true
                 }
             },
-            categories: true
+            categories: {
+                select: {
+                    id: true,
+                    name: true
+                }
+            }
         },
         orderBy: {
             createdAt: 'desc'
@@ -106,7 +121,12 @@ export async function getPostPublished(id: string): Promise<Post | null> {
     const post = await prisma.post.findUnique({
         where: { id, status: PostStatus.PUBLISHED },
         include: {
-            categories: true,
+            categories: {
+                select: {
+                    id: true,
+                    name: true
+                }
+            },
             author: {
                 select: {
                     id: true,
@@ -127,7 +147,12 @@ export async function getBlogPosts(authorId: string): Promise<BlogPostResponse[]
     const posts = await prisma.post.findMany({
         where: { authorId: authorId },
         include: {
-            categories: true,
+            categories: {
+                select: {
+                    id: true,
+                    name: true
+                }
+            },
             author: {
                 select: {
                     id: true,
@@ -154,11 +179,13 @@ export async function getBlogPosts(authorId: string): Promise<BlogPostResponse[]
 
 export async function getPostPublishedBySlug(slug: string): Promise<Post | null> {
     try {
-        // Try to get from cache first
-        const cached = await getBlogPostCache(slug);
-        if (cached && cached.status === PostStatus.PUBLISHED) {
-            return cached;
-        }
+
+        // TODO: Uncomment this if prisma cache is not working
+        // // Try to get from cache first
+        // const cached = await getBlogPostCache(slug);
+        // if (cached && cached.status === PostStatus.PUBLISHED) {
+        //     return cached;
+        // }
 
         const post = await prisma.post.findUnique({
             where: {
@@ -172,7 +199,15 @@ export async function getPostPublishedBySlug(slug: string): Promise<Post | null>
                         name: true
                     }
                 },
-                categories: true
+                categories: {
+                    select: {
+                        id: true,
+                        name: true
+                    }
+                }
+            },
+            cacheStrategy: {
+                ttl: 60 * 60 * 1 // 1 hour
             }
         });
 
@@ -243,7 +278,12 @@ export async function updateBlogPostDraftUnpublished(data: DraftUpdateData, post
             updatedAt: new Date()
         },
         include: {
-            categories: true
+            categories: {
+                select: {
+                    id: true,
+                    name: true
+                }
+            }
         }
     });
 

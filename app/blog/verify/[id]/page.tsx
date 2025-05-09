@@ -82,7 +82,7 @@ export default function Blog({ params }: Props) {
                             {post ? (
                                 post.signature
                             ) : (
-                                <p>Post not found.</p>
+                                <p>لم يتم العثور على المنشور.</p>
                             )}
                         </pre>
                     </div>

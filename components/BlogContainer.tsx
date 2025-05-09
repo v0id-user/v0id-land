@@ -30,7 +30,12 @@ export default async function BlogContainer({ post }: { post: ExtendedPost }) {
                         <div className="flex items-center gap-2 flex-shrink-0">
                             <span className="truncate">{post.author.name}</span>
                             <span>•</span>
-                            <span>{new Date(post.createdAt).toLocaleDateString('ar-SA')}</span>
+                            <span>{new Date(post.createdAt).toLocaleDateString('ar-SA', {
+                                year: 'numeric',
+                                month: 'numeric', 
+                                day: 'numeric',
+                                calendar: 'islamic'
+                            })}</span>
                         </div>
 
                         {/* GPG Signature Status */}

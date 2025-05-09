@@ -30,6 +30,15 @@ export default function TreePage() {
                 <a href="https://reddit.com/u/v0id_user" className="w-full text-center p-3 hover:bg-gray-100 transition-colors rounded-lg">
                     ريديت
                 </a>
+                <a href="https://linkedin.com/in/v0id-user" className="w-full text-center p-3 hover:bg-gray-100 transition-colors rounded-lg">
+                لينكد إن 
+                </a>
+                <a href="https://instagram.com/v0id_user" className="w-full text-center p-3 hover:bg-gray-100 transition-colors rounded-lg">
+                انستغرام 
+                </a>
+                <a href="https://bsky.app/profile/v0id.me" className="w-full text-center p-3 hover:bg-gray-100 transition-colors rounded-lg">
+                بلو سكاي
+                </a>
                 <button 
                     onClick={copyToClipboard}
                     className="w-full text-center p-3 hover:bg-gray-100 transition-colors rounded-lg relative"

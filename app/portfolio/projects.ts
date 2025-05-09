@@ -132,5 +132,19 @@ export const projects: Project[] = [
         description: "My personal website, where I integrated my own blog system, portfolio, and other projects in it.",
         technologies: ["Next.js", "Tailwind CSS", "PostgreSQL", "Prisma", "S3", "Shadcn/UI"],
         githubUrl: "https://github.com/v0id-user/v0id-land"
+    },
+    {
+        name: "GitNav",
+        date: "February 2025",
+        description: "Contributed to GitNav by refactoring the UI rendering system, implementing a debugger, and improving state management to fix re-rendering issues. Added key press throttling and optimized terminal performance.",
+        technologies: ["Rust", "Terminal UI", "State Management", "Contribution"],
+        githubUrl: "https://github.com/skiupace/GitNav/pull/2"
+    },
+    {
+        name: "HoseWatcher",
+        date: "March 2025", 
+        description: "A real-time Bluesky firehose relay service that processes and streams AtProto events to clients via WebSockets, built on Cloudflare Workers.",
+        technologies: ["Cloudflare Workers", "WebSocket", "CBOR", "Node.js", "ATProto", "Typescript"],
+        githubUrl: "https://github.com/v0id-user/hosewatcher"
     }
 ];

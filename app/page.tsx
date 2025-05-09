@@ -61,6 +61,7 @@ export default function Home() {
             <Link className="text-base sm:text-lg hover:text-gray-600 transition-colors" href="/tree">تواصل معي</Link>
             <Link className="text-base sm:text-lg hover:text-gray-600 transition-colors" href="/portfolio">معرض الأعمال</Link>
             <Link className="text-base sm:text-lg hover:text-gray-600 transition-colors" href="/blog">المدونة</Link>
+            <Link className="text-base sm:text-lg hover:text-gray-600 transition-colors" href="https://components.v0id.me/">المكونات</Link>
           </div>
 
           <div className="flex items-center justify-center gap-4 sm:gap-8 pt-8">

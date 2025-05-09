@@ -5,10 +5,10 @@ import Link from "next/link";
 export default function CV() {
     return (
         <>
-            <div className="max-w-[21cm] mx-auto p-6 bg-white print:p-4 font-serif">
+            <div className="max-w-[21cm] mx-auto p-4 bg-white print:p-3 font-serif">
                 {/* Header Section */}
-                <header className="mb-4">
-                    <h1 className="text-2xl font-bold mb-2 border-b border-gray-300 pb-1" style={{ fontFamily: 'Times New Roman, serif' }}>Curriculum Vitae</h1>
+                <header className="mb-3">
+                    <h1 className="text-xl font-bold mb-1 border-b border-gray-300 pb-1" style={{ fontFamily: 'Times New Roman, serif' }}>Curriculum Vitae</h1>
                     <div className="text-gray-800 text-left leading-tight grid grid-cols-2">
                         <div>
                             <p>Fahad Alghamdi</p>
@@ -22,100 +22,100 @@ export default function CV() {
                 </header>
 
                 {/* Profile Section */}
-                <section className="mb-4">
-                    <h2 className="text-lg font-bold border-b border-gray-300 mb-1" style={{ fontFamily: 'Times New Roman, serif' }}>Professional Summary</h2>
-                    <p className="text-gray-800 leading-snug">
+                <section className="mb-3">
+                    <h2 className="text-base font-bold border-b border-gray-300 mb-1" style={{ fontFamily: 'Times New Roman, serif' }}>Professional Summary</h2>
+                    <p className="text-gray-800 leading-snug text-sm">
                         Software developer since late 2020 with 4 years of experience in software development and technical problem-solving.
                         Currently pursuing university studies.
                     </p>
                 </section>
 
                 {/* Professional Experience Timeline */}
-                <section className="mb-4">
-                    <h2 className="text-lg font-bold border-b border-gray-300 mb-1" style={{ fontFamily: 'Times New Roman, serif' }}>Projects & Professional Development</h2>
-                    <div className="space-y-3">
+                <section className="mb-3">
+                    <h2 className="text-base font-bold border-b border-gray-300 mb-1" style={{ fontFamily: 'Times New Roman, serif' }}>Projects & Professional Development</h2>
+                    <div className="space-y-2">
                         <div>
                             <h3 className="font-bold text-sm">Mid 2024 - Present</h3>
-                            <p className="text-gray-800 text-sm pl-4">
-                                To be added...
+                            <p className="text-gray-800 text-sm pl-3">
+                                Developing a modular full-stack system, focusing on scalability, microservices architecture, and high-performance back-end development. Technologies used: Next.js, NestJS, PostgreSQL, Prisma, and Docker.
+                                • Designed a shared library for efficient API communication • Implemented authentication, caching mechanisms, and automated CI/CD pipelines • Structured a well-organized monorepo to manage multiple services efficiently
                             </p>
                         </div>
                         <div>
                             <h3 className="font-bold text-sm">Late 2023 - Early 2024</h3>
-                            <p className="text-gray-800 text-sm pl-4">
-                                To be added...
+                            <p className="text-gray-800 text-sm pl-3">
+                                Worked on PMPS (Process Memory Pattern Scanner), a Windows-based tool for scanning process memory using C, Windows API, and regex matching.
+                                • Implemented low-level memory scanning techniques • Utilized Windows API for deep process inspection • Experimented with pattern recognition algorithms for security analysis
                             </p>
                         </div>
                         <div>
                             <h3 className="font-bold text-sm">Early 2022 - Mid 2023</h3>
-                            <p className="text-gray-800 text-sm pl-4">
-                            To be added...
-
+                            <p className="text-gray-800 text-sm pl-3">
+                                Built various low-level networking and system programming projects: • DFTP (Custom FTP Protocol in C) → Developed a binary data serialization system
+                                • HttpServer (Custom C HTTP Server) → Implemented a lightweight web server using hashmaps • Postgres-Reactive-SSE → Created a real-time system using PostgreSQL&apos;s NOTIFY/LISTEN
                             </p>
                         </div>
                         <div>
                             <h3 className="font-bold text-sm">Late 2020 - Late 2021</h3>
-                            <p className="text-gray-800 text-sm pl-4">
-                                To be added...
+                            <p className="text-gray-800 text-sm pl-3">
+                                Focused on automation, scripting, and reverse engineering: • Developed multiple automation bots using Python • Created network tools and security experiments
+                                • Built a basic echo server in Assembly to experiment with low-level networking
                             </p>
                         </div>
                     </div>
                 </section>
 
                 {/* Technical Skills Section */}
-                <section className="mb-4">
-                    <h2 className="text-lg font-bold border-b border-gray-300 mb-1" style={{ fontFamily: 'Times New Roman, serif' }}>Technical Skills</h2>
-                    <div className="grid grid-cols-2 gap-x-4 gap-y-2">
+                <section className="mb-3">
+                    <h2 className="text-base font-bold border-b border-gray-300 mb-1" style={{ fontFamily: 'Times New Roman, serif' }}>Technical Skills</h2>
+                    <div className="grid grid-cols-2 gap-x-3 gap-y-1 text-sm">
                         <div>
-                            <h3 className="font-bold text-sm">Programming Languages:</h3>
-                            <p className="text-gray-800 text-sm">{languages.map(language => language.name).join(', ')}</p>
+                            <h3 className="font-bold">Programming Languages:</h3>
+                            <p className="text-gray-800">{languages.map(language => language.name).join(', ')}</p>
                         </div>
                         <div>
-                            <h3 className="font-bold text-sm">Frameworks & Libraries:</h3>
-                            <p className="text-gray-800 text-sm">Frameworks: {frameworks.map(framework => framework.name).join(', ')} | Libraries: {libraries.map(library => library.name).join(', ')}</p>
+                            <h3 className="font-bold">Frameworks & Libraries:</h3>
+                            <p className="text-gray-800">Frameworks: {frameworks.map(framework => framework.name).join(', ')} | Libraries: {libraries.map(library => library.name).join(', ')}</p>
                         </div>
                         <div>
-                            <h3 className="font-bold text-sm">Databases:</h3>
-                            <p className="text-gray-800 text-sm">{databases.map(database => database.name).join(', ')}</p>
+                            <h3 className="font-bold">Databases:</h3>
+                            <p className="text-gray-800">{databases.map(database => database.name).join(', ')}</p>
                         </div>
                         <div>
-                            <h3 className="font-bold text-sm">Cloud Services:</h3>
-                            <p className="text-gray-800 text-sm">{cloudServices.map(cloudService => cloudService.name).join(', ')}</p>
+                            <h3 className="font-bold">Cloud Services:</h3>
+                            <p className="text-gray-800">{cloudServices.map(cloudService => cloudService.name).join(', ')}</p>
                         </div>
                         <div>
-                            <h3 className="font-bold text-sm">Tools:</h3>
-                            <p className="text-gray-800 text-sm">{tools.map(tool => tool.name).join(', ')}</p>
+                            <h3 className="font-bold">Tools:</h3>
+                            <p className="text-gray-800">{tools.map(tool => tool.name).join(', ')}</p>
                         </div>
                     </div>
                 </section>
 
-                {/* Notable Projects Section */}
-                <section className="mb-4">
-                    <h2 className="text-lg font-bold border-b border-gray-300 mb-1" style={{ fontFamily: 'Times New Roman, serif' }}>Notable Projects</h2>
-                    <ul className="list-disc list-inside text-gray-800 text-sm leading-snug pl-2">
-                        <li className="stroke">Engineered and implemented a custom asynchronous runtime environment utilizing C, demonstrating advanced systems programming capabilities</li>
-                        <li className="stroke">Architected real-time reactive systems leveraging PostgreSQL and Server-Sent Events (SSE), achieving robust data synchronization</li>
-                        <li className="stroke">Developed cross-platform applications with emphasis on scalability and performance optimization</li>
-                        <li className="stroke">Led UI/UX design initiatives utilizing industry-standard design tools and methodologies</li>
-                    </ul>
-                    <p className="text-gray-600 italic text-xs">To be polished more</p>
-                    <p className="mt-1 text-gray-600 italic text-xs">
-                        * Additional project details available on GitHub profile
-                    </p>
-                </section>
-
                 {/* Certifications Section */}
-                <section className="mb-4">
-                    <h2 className="text-lg font-bold border-b border-gray-300 mb-1" style={{ fontFamily: 'Times New Roman, serif' }}>Certifications</h2>
-                    <p className="text-gray-600 italic text-sm">Certifications to be added...</p>
+                <section className="mb-3">
+                    <h2 className="text-base font-bold border-b border-gray-300 mb-1" style={{ fontFamily: 'Times New Roman, serif' }}>Certifications</h2>
+                    <div className="text-gray-800 text-sm grid grid-cols-2 gap-x-3">
+                        <div>
+                            <p>• Meta Back-End Developer Certificate – Meta, Coursera (Feb 2025)</p>
+                            <p>• Meta Full-Stack Development – Meta (Feb 2025)</p>
+                            <p>• Meta APIs & Django Specialization – Meta (Feb 2025)</p>
+                        </div>
+                        <div>
+                            <p>• Meta Coding Interview Preparation – Meta (Feb 2025)</p>
+                            <p>• Version Control & CI/CD with GitHub – Meta (Jan 2025)</p>
+                        </div>
+                    </div>
                 </section>
 
                 {/* Education Section */}
-                <section className="mb-4">
-                    <h2 className="text-lg font-bold border-b border-gray-300 mb-1" style={{ fontFamily: 'Times New Roman, serif' }}>Education</h2>
-                    <p className="text-gray-600 italic text-sm">
-                        Certificates to be added...
-                    </p>
+                <section>
+                    <h2 className="text-base font-bold border-b border-gray-300 mb-1" style={{ fontFamily: 'Times New Roman, serif' }}>Education</h2>
+                    <div className="text-gray-800 text-sm">
+                        <p className="font-bold">King Abdulaziz University, Saudi Arabia</p>
+                        <p>Bachelor&apos;s Degree in Hospital Management (Business Administration) | Expected Graduation: 2026</p>
+                        <p className="text-gray-700">While studying business, I pursued an extensive self-learning journey in software development, focusing on system programming, full-stack development, and networking.</p>
+                    </div>
                 </section>
 
                 {/* Print Styles */}
@@ -133,14 +133,12 @@ export default function CV() {
                         -webkit-print-color-adjust: exact;
                         font-family: 'Times New Roman', Times, serif;
                     }
-                    .print\\:p-4 {
-                        padding: 1rem;
+                    .print\\:p-3 {
+                        padding: 0.75rem;
                     }
-                    /* Hide custom cursor when printing */
                     .custom-cursor {
                         display: none !important;
                     }
-                    /* Restore default cursor behavior */
                     * {
                         cursor: default !important;
                     }

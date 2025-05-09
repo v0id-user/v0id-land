@@ -1,21 +1,18 @@
 import 'server-only'
-import { Post, User, Category } from "@prisma/client"
+import { Post, User } from "@prisma/client"
 import redis from "@/lib/redis"
 import { BlogsResponse } from "@/interfaces/blog"
+import { SafeCategory } from '@/interfaces/categories'
+import { SafeUser } from '@/interfaces/user'
 
 const CACHE_PREFIX = 'blog_server_'
 const CACHE_TTL = 3600 // 1 hour in seconds
 
-// Safe user type without sensitive data
-interface SafeUser {
-    id: string;
-    name: string;
-}
 
 // Types matching Prisma return types
 interface PostWithSafeAuthorAndCategories extends Post {
     author: SafeUser;
-    categories: Category[];
+    categories: SafeCategory[];
 }
 
 interface PublishedPostWithSafeAuthorAndCategories extends PostWithSafeAuthorAndCategories {
@@ -31,13 +28,13 @@ export function toSafeUser(user: Pick<User, 'id' | 'name'>): SafeUser {
 }
 
 export function toPostWithSafeAuthor(post: Post & { 
-    author: Pick<User, 'id' | 'name'>, 
-    categories: Category[] 
-}): PostWithSafeAuthorAndCategories {
+    author: { id: string; name: string; }, 
+    categories: { id: string; name: string; }[] 
+}) {
     return {
         ...post,
-        author: toSafeUser(post.author),
-        categories: post.categories
+        categories: post.categories.map(c => ({ id: c.id, name: c.name })) as SafeCategory[],
+        author: { id: post.author.id, name: post.author.name }
     };
 }
 

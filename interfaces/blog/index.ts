@@ -1,5 +1,6 @@
-import { PostStatus, Category, Post } from "@prisma/client"
+import { PostStatus, Post } from "@prisma/client"
 import { SafeUser } from "../user"
+import { SafeCategory } from "../categories"
 
 export interface BlogPostRequest {
     id?: string
@@ -19,7 +20,7 @@ export interface BlogPostResponse {
     content: string
     slug: string
     status: PostStatus
-    categories: Category[]
+    categories: SafeCategory[]
     author: string
     signedWithGPG: boolean
     workbar: boolean

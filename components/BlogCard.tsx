@@ -18,14 +18,14 @@ export function BlogCardSkeleton() {
             <div className="space-y-3">
                 {/* Title skeleton */}
                 <div className="h-8 bg-gray-200 animate-pulse rounded w-3/4"></div>
-                
+
                 {/* Metadata skeleton */}
                 <div className="flex items-center gap-4">
                     <div className="h-4 bg-gray-200 animate-pulse rounded w-24"></div>
                     <div className="h-4 bg-gray-200 animate-pulse rounded w-4"></div>
                     <div className="h-4 bg-gray-200 animate-pulse rounded w-24"></div>
                 </div>
-                
+
                 {/* Categories skeleton */}
                 <div className="flex gap-2 mt-3">
                     <div className="h-6 bg-gray-200 animate-pulse rounded w-16"></div>
@@ -69,9 +69,14 @@ export default function BlogCard({ post, index }: BlogCardProps) {
                 <div className="flex items-center text-sm text-gray-500 gap-4">
                     <span>{post.author?.name || "Unknown"}</span>
                     <span>•</span>
-                    <span>{new Date(post.createdAt).toLocaleDateString('ar-SA')}</span>
+                    <span>{new Date(post.createdAt).toLocaleDateString('ar-SA', {
+                        year: 'numeric',
+                        month: 'numeric',
+                        day: 'numeric',
+                        calendar: 'islamic'
+                    })}</span>
                     {post.signedWithGPG ? (
-                        <div 
+                        <div
                             onClick={(e) => {
                                 e.preventDefault();
                                 e.stopPropagation();
