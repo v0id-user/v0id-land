@@ -1,4 +1,4 @@
-# V0ID Land
+# V0ID Land (Deprecated | Old)
 <div align="center" style="text-align: center; font-size: 1.05rem; font-style: italic;">
     My Personal Space & Website to express, write, and share my thoughts, ideas, projects and my personal journey and experiences also including my personal data. It works as a central point for me.
 </div>
